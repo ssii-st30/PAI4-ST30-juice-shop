@@ -19,11 +19,11 @@ jobs:
 
       - name: Generar package-lock.json e instalar dependencias
         run: |
-          npm install --package-lock-only --no-audit --legacy-peer-deps
+          npm install --package-lock-only --ignore-scripts --no-audit --legacy-peer-deps
           npm ci --ignore-scripts --legacy-peer-deps
 
-      - name: Verificar build del proyecto (TypeScript)
-        run: npx tsc --noEmit || npm run build --if-present
+      - name: Compilar servidor (build:server)
+        run: npm run build:server
 
       - name: Subir package-lock.json para Dependency-Check (SCA)
         uses: actions/upload-artifact@v4
