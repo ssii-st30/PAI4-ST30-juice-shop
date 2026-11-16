@@ -65,28 +65,28 @@ jobs:
       - name: Caché de la base de datos NVD
         uses: actions/cache@v4
         with:
-          path: ~/.m2/repository/org/owasp/dependency-check-data
+          path: ~/.dependency-check-data
           key: nvd-data-${{ github.run_id }}
           restore-keys: |
             nvd-data-
 
       - name: Ejecutar OWASP Dependency-Check
-        id: depcheck
         continue-on-error: true
-        uses: dependency-check/Dependency-Check_Action@main
-        env:
-          JAVA_OPTS: "-Xms1024m -Xmx4096m"
-        with:
-          project: 'Juice Shop ST-30'
-          path: '.'
-          format: 'XML'
-          args: >
-            --scan package.json
-            --scan package-lock.json
-            --failOnCVSS 7
-            --nvdApiKey ${{ secrets.NVD_API_KEY }}
-            --data /github/home/.m2/repository/org/owasp/dependency-check-data
-            --out reports
+        run: |
+          mkdir -p reports ~/.dependency-check-data
+          docker run --rm \
+            -v "${{ github.workspace }}:/src:z" \
+            -v "$HOME/.dependency-check-data:/usr/share/dependency-check/data:z" \
+            -v "${{ github.workspace }}/reports:/report:z" \
+            owasp/dependency-check:latest \
+            --scan /src/package.json \
+            --scan /src/package-lock.json \
+            --format XML \
+            --project "Juice Shop ST-30" \
+            --out /report \
+            --failOnCVSS 7 \
+            --suppression /src/security/dependency-check/suppressions.xml \
+            --nvdApiKey "${{ secrets.NVD_API_KEY }}"
 
       - name: Escribir resumen SCA en el job
         if: always()
