@@ -7,14 +7,105 @@ on:
 
 jobs:
   sast:
+    name: SAST (Semgrep)
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
-      - uses: actions/checkout@v4
-      - name: Pendiente de implementar
-        run: echo "Etapa 'sast' pendiente de implementar (persona A)"
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Ejecutar Semgrep (JS/TS + OWASP Top 10)
+        id: semgrep_scan
+        continue-on-error: true
+        uses: semgrep/semgrep-action@v1
+        with:
+          config: >-
+            p/javascript
+            p/typescript
+            p/owasp-top-ten
+          generateSarif: "0"
+        env:
+          SEMGREP_REPO_NAME: ${{ github.repository }}
+
+      - name: Generar informe JSON y resumen de severidad
+        if: always()
+        run: |
+          pip install --quiet semgrep
+          semgrep scan --config p/javascript --config p/typescript --config p/owasp-top-ten --json --output semgrep.json . || true
+          ERROR_COUNT=$(jq '[.results[] | select(.extra.severity == "ERROR")] | length' semgrep.json)
+          WARNING_COUNT=$(jq '[.results[] | select(.extra.severity == "WARNING")] | length' semgrep.json)
+          echo "### Resumen SAST (Semgrep)" >> $GITHUB_STEP_SUMMARY
+          echo "- Hallazgos **ERROR** (Critical/High): **$ERROR_COUNT**" >> $GITHUB_STEP_SUMMARY
+          echo "- Hallazgos **WARNING** (Medium): **$WARNING_COUNT**" >> $GITHUB_STEP_SUMMARY
+          if [ "$ERROR_COUNT" -gt 0 ]; then
+            echo "::warning::Semgrep detectó $ERROR_COUNT hallazgos de severidad ERROR (modo aviso, no bloquea)."
+          fi
+
+      - name: Subir artifact report-semgrep
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-semgrep
+          path: semgrep.json
+          if-no-files-found: error
+
   sca:
+    name: SCA (OWASP Dependency-Check)
     runs-on: ubuntu-latest
+    continue-on-error: true
     steps:
-      - uses: actions/checkout@v4
-      - name: Pendiente de implementar
-        run: echo "Etapa 'sca' pendiente de implementar (persona A)"
+      - name: Checkout del código
+        uses: actions/checkout@v4
+
+      - name: Descargar package-lock.json generado en Build
+        uses: actions/download-artifact@v4
+        with:
+          name: juice-shop-lockfile
+
+      - name: Caché de la base de datos NVD
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository/org/owasp/dependency-check-data
+          key: nvd-data-${{ github.run_id }}
+          restore-keys: |
+            nvd-data-
+
+      - name: Ejecutar OWASP Dependency-Check
+        id: depcheck
+        continue-on-error: true
+        uses: dependency-check/Dependency-Check_Action@main
+        env:
+          JAVA_OPTS: "-Xms1024m -Xmx4096m"
+        with:
+          project: 'Juice Shop ST-30'
+          path: '.'
+          format: 'XML'
+          args: >
+            --scan package.json
+            --scan package-lock.json
+            --failOnCVSS 7
+            --nvdApiKey ${{ secrets.NVD_API_KEY }}
+            --data /github/home/.m2/repository/org/owasp/dependency-check-data
+            --out reports
+
+      - name: Escribir resumen SCA en el job
+        if: always()
+        run: |
+          echo "### Resumen SCA (OWASP Dependency-Check)" >> $GITHUB_STEP_SUMMARY
+          if [ -f reports/dependency-check-report.xml ]; then
+            HIGH_CRIT=$(grep -E -c "<severity>(HIGH|CRITICAL)</severity>" reports/dependency-check-report.xml || true)
+            echo "- Vulnerabilidades **Critical/High (CVSS >= 7)**: **$HIGH_CRIT**" >> $GITHUB_STEP_SUMMARY
+            if [ "$HIGH_CRIT" -gt 0 ]; then
+              echo "::warning::Dependency-Check detectó $HIGH_CRIT vulnerabilidades Critical/High (modo aviso, no bloquea)."
+            fi
+          else
+            echo "- No se generó el informe XML." >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Subir artifact report-dependency-check
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-dependency-check
+          path: reports/dependency-check-report.xml
+          if-no-files-found: error
