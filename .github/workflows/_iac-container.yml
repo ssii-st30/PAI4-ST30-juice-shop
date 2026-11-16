@@ -8,6 +8,8 @@ on:
 jobs:
   iac:
     runs-on: ubuntu-latest
+    env:
+      KICS_IMAGE: checkmarx/kics@sha256:49ccc54b6ae7f5d5fc95e96f8f95c18c57f3bba047ab611a03d80792bdff6757   # v2.2.1 fijada por digest (incidente TeamPCP, abril 2026)
     steps:
       - uses: actions/checkout@v4
 
@@ -16,11 +18,15 @@ jobs:
         continue-on-error: true   # modo aviso: informa pero no detiene el pipeline
         run: |
           mkdir -p kics-results
-          docker run --rm -v "${{ github.workspace }}:/path" checkmarx/kics:latest scan \
+          docker run --rm -v "${{ github.workspace }}:/path" "$KICS_IMAGE" scan \
             -p /path/Dockerfile,/path/terraform,/path/infrastructure,/path/k8s \
             -o /path/kics-results \
             --report-formats json \
             --fail-on critical,high
+
+      - name: Registrar versión exacta de KICS
+        if: always()
+        run: docker image inspect --format '{{index .RepoDigests 0}}' "$KICS_IMAGE"
 
       - name: Resumen de hallazgos
         if: always()
@@ -49,7 +55,69 @@ jobs:
 
   image-scan:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write   # publicar la imagen en GHCR
+    env:
+      IMAGE: ghcr.io/${{ github.repository_owner }}/juice-shop:${{ github.sha }}
+      TRIVY_IMAGE: aquasec/trivy:0.69.3   # versión segura tras el incidente de marzo de 2026
     steps:
       - uses: actions/checkout@v4
-      - name: Pendiente de implementar
-        run: echo "Etapa 'image-scan' pendiente de implementar (persona B)"
+
+      - name: Iniciar sesión en GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+
+      - name: Construir la imagen de Juice Shop
+        run: |
+          docker build \
+            --label "org.opencontainers.image.source=https://github.com/${{ github.repository }}" \
+            -t "$IMAGE" .
+
+      - name: Publicar la imagen en GHCR
+        run: docker push "$IMAGE"
+
+      - name: Analizar la imagen con Trivy
+        run: |
+          mkdir -p trivy-results
+          docker run --rm \
+            -v /var/run/docker.sock:/var/run/docker.sock \
+            -v "$PWD/trivy-results:/out" \
+            "$TRIVY_IMAGE" image --format json --output /out/trivy-image.json "$IMAGE"
+
+      - name: Registrar versión exacta de Trivy
+        if: always()
+        run: docker image inspect --format '{{index .RepoDigests 0}}' "$TRIVY_IMAGE"
+
+      - name: Resumen de hallazgos
+        if: always()
+        run: |
+          R=trivy-results/trivy-image.json
+          cnt() { jq --arg s "$1" '[.Results[]? | (.Vulnerabilities // [])[], (.Secrets // [])[] | select(.Severity == $s)] | length' $R; }
+          C=$(cnt CRITICAL); H=$(cnt HIGH); M=$(cnt MEDIUM); L=$(cnt LOW)
+          {
+            echo "## Trivy (imagen) – modo aviso"
+            echo "Imagen: \`$IMAGE\`"
+            echo ""
+            echo "| Critical | High | Medium | Low |"
+            echo "|---|---|---|---|"
+            echo "| $C | $H | $M | $L |"
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "TOTAL_CH=$((C + H))" >> "$GITHUB_ENV"
+          if [ "$((C + H))" -gt 0 ]; then
+            echo "::warning title=Trivy::$C críticas y $H altas en la imagen (umbral superado, etapa en modo aviso)"
+          fi
+
+      - name: Umbral Critical/High (modo aviso)
+        continue-on-error: true   # modo aviso: informa pero no detiene el pipeline
+        run: |
+          if [ "${TOTAL_CH:-0}" -gt 0 ]; then
+            echo "Umbral superado: $TOTAL_CH vulnerabilidades Critical/High en la imagen"
+            exit 1
+          fi
+
+      - name: Subir informe
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-trivy
+          path: trivy-results/trivy-image.json
