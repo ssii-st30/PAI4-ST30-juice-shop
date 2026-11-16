@@ -9,7 +9,7 @@ jobs:
   iac:
     runs-on: ubuntu-latest
     env:
-      KICS_IMAGE: checkmarx/kics:latest   # pendiente: fijar por digest (ver paso "Registrar versión")
+      KICS_IMAGE: checkmarx/kics@sha256:49ccc54b6ae7f5d5fc95e96f8f95c18c57f3bba047ab611a03d80792bdff6757   # v2.2.1 fijada por digest (incidente TeamPCP, abril 2026)
     steps:
       - uses: actions/checkout@v4
 
