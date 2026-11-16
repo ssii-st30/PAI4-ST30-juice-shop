@@ -98,8 +98,8 @@ jobs:
         run: |
           echo "### Resumen SCA (OWASP Dependency-Check)" >> $GITHUB_STEP_SUMMARY
           if [ -f reports/dependency-check-report.xml ]; then
-            CRIT_COUNT=$(grep -Eic "<severity>CRITICAL</severity>" reports/dependency-check-report.xml || true)
-            HIGH_COUNT=$(grep -Eic "<severity>HIGH</severity>" reports/dependency-check-report.xml || true)
+            CRIT_COUNT=$(grep -Eic "<severity[^>]*>critical</severity>" reports/dependency-check-report.xml || true)
+            HIGH_COUNT=$(grep -Eic "<severity[^>]*>high</severity>" reports/dependency-check-report.xml || true)
             TOTAL_HC=$((CRIT_COUNT + HIGH_COUNT))
             echo "- Vulnerabilidades **Critical**: **$CRIT_COUNT**" >> $GITHUB_STEP_SUMMARY
             echo "- Vulnerabilidades **High**: **$HIGH_COUNT**" >> $GITHUB_STEP_SUMMARY

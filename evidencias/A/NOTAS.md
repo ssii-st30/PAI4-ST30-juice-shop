@@ -21,16 +21,17 @@
   - *Frente a Dependabot:* Integración nativa en el pipeline CI/CD con exportación directa de informes XML estándar hacia DefectDojo y control explícito del umbral CVSS.
   - *Frente a Snyk:* Evita depender de cuentas comerciales externas o límites de escaneos, apoyándose directamente en la base pública NVD mediante `NVD_API_KEY`.
 - **Configuración, modo aviso y resultados:** Imagen oficial fijada en `owasp/dependency-check:13.0.0` sobre `package.json` y `package-lock.json` con `--failOnCVSS 7` (umbral High/Critical) y caché persistente (`actions/cache@v4`) de la base NVD. Al superar el umbral devuelve `exit code 15`, capturado en modo aviso (`continue-on-error: true` en el paso). Exporta `dependency-check-report.xml` (artifact `report-dependency-check`).
-  - Total vulnerabilidades detectadas: **35** (**0** Critical, **0** High — Total Critical/High CVSS >= 7: **0**).
+  - Total vulnerabilidades detectadas: **35** (**5** Critical, **10** High — Total Critical/High CVSS >= 7: **15**).
   - Ejemplos representativos:
-
+- **GHSA-q69g-4hcv-6jg4** — Severidad: HIGH (CVSS: )
+- **GHSA-v75r-vx73-82pj** — Severidad: HIGH (CVSS: )
 - **Gestión de falsos positivos:** Fichero XML `security/dependency-check/suppressions.xml` pasado mediante `--suppression`.
 
 ## 4. Problemas encontrados y soluciones aplicadas
 1. **Ausencia de `package-lock.json`:** Resuelto generándolo en `_build.yml` y compartiéndolo entre jobs como artifact.
 2. **Disparo automático de `postinstall` de Angular:** Al generar el lockfile sin `--ignore-scripts`, `npm` intentaba compilar el frontend fallando por falta de `ng` global. Se resolvió añadiendo `--ignore-scripts` y verificando el servidor con `npm run build:server`.
 3. **Permisos de escritura en el contenedor de Dependency-Check:** Resuelto asignando `chmod -R 777` sobre las carpetas montadas para datos NVD y salida de informes.
-4. **Sensibilidad a mayúsculas/minúsculas en el resumen SCA y doble ejecución de Semgrep:** Corregido usando `grep -Eic` (Dependency-Check exporta `<severity>` en minúsculas, contabilizando 5 Critical y 10 High), fijando versiones de ambas herramientas y eliminando la acción duplicada de Semgrep.
+4. **Sensibilidad a mayúsculas/minúsculas y atributos XML en el resumen SCA y doble ejecución de Semgrep:** Corregido usando `grep -Eic "<severity[^>]*>..."` (Dependency-Check v13 exporta `<severity unscored="true">` en minúsculas, contabilizando 5 Critical y 10 High), fijando versiones de ambas herramientas (`1.185.0` y `13.0.0`) y eliminando la acción duplicada de Semgrep.
 
 ## 5. Pendiente de integración con Persona C
 - Añadir la llamada a la acción compuesta `.github/actions/defectdojo-import` al final de los jobs `sast` y `sca` cuando esté disponible en `master`.
