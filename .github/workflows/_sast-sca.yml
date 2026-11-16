@@ -9,29 +9,33 @@ jobs:
   sast:
     name: SAST (Semgrep)
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - name: Checkout del código
         uses: actions/checkout@v4
 
       - name: Ejecutar Semgrep (JS/TS + OWASP Top 10)
-        id: semgrep_scan
         continue-on-error: true
-        uses: semgrep/semgrep-action@v1
-        with:
-          config: >-
-            p/javascript
-            p/typescript
-            p/owasp-top-ten
-          generateSarif: "0"
-        env:
-          SEMGREP_REPO_NAME: ${{ github.repository }}
+        run: |
+          pip install --quiet semgrep==1.185.0
+          EXCLUDE_ARGS=""
+          if [ -f security/semgrep/.semgrepignore ]; then
+            while IFS= read -r line || [ -n "$line" ]; do
+              line=$(echo "$line" | sed 's/#.*//' | xargs)
+              [ -n "$line" ] && EXCLUDE_ARGS="$EXCLUDE_ARGS --exclude=$line"
+            done < security/semgrep/.semgrepignore
+          fi
+          semgrep scan \
+            --config p/javascript \
+            --config p/typescript \
+            --config p/owasp-top-ten \
+            $EXCLUDE_ARGS \
+            --json \
+            --output semgrep.json \
+            .
 
-      - name: Generar informe JSON y resumen de severidad
+      - name: Generar resumen de severidad SAST
         if: always()
         run: |
-          pip install --quiet semgrep
-          semgrep scan --config p/javascript --config p/typescript --config p/owasp-top-ten --json --output semgrep.json . || true
           ERROR_COUNT=$(jq '[.results[] | select(.extra.severity == "ERROR")] | length' semgrep.json)
           WARNING_COUNT=$(jq '[.results[] | select(.extra.severity == "WARNING")] | length' semgrep.json)
           echo "### Resumen SAST (Semgrep)" >> $GITHUB_STEP_SUMMARY
@@ -52,7 +56,6 @@ jobs:
   sca:
     name: SCA (OWASP Dependency-Check)
     runs-on: ubuntu-latest
-    continue-on-error: true
     steps:
       - name: Checkout del código
         uses: actions/checkout@v4
@@ -79,7 +82,7 @@ jobs:
             -v "${{ github.workspace }}:/src" \
             -v "$HOME/.dependency-check-data:/usr/share/dependency-check/data" \
             -v "${{ github.workspace }}/reports:/report" \
-            owasp/dependency-check:latest \
+            owasp/dependency-check:13.0.0 \
             --scan /src/package.json \
             --scan /src/package-lock.json \
             --format XML \
@@ -95,10 +98,14 @@ jobs:
         run: |
           echo "### Resumen SCA (OWASP Dependency-Check)" >> $GITHUB_STEP_SUMMARY
           if [ -f reports/dependency-check-report.xml ]; then
-            HIGH_CRIT=$(grep -E -c "<severity>(HIGH|CRITICAL)</severity>" reports/dependency-check-report.xml || true)
-            echo "- Vulnerabilidades **Critical/High (CVSS >= 7)**: **$HIGH_CRIT**" >> $GITHUB_STEP_SUMMARY
-            if [ "$HIGH_CRIT" -gt 0 ]; then
-              echo "::warning::Dependency-Check detectó $HIGH_CRIT vulnerabilidades Critical/High (modo aviso, no bloquea)."
+            CRIT_COUNT=$(grep -Eic "<severity>CRITICAL</severity>" reports/dependency-check-report.xml || true)
+            HIGH_COUNT=$(grep -Eic "<severity>HIGH</severity>" reports/dependency-check-report.xml || true)
+            TOTAL_HC=$((CRIT_COUNT + HIGH_COUNT))
+            echo "- Vulnerabilidades **Critical**: **$CRIT_COUNT**" >> $GITHUB_STEP_SUMMARY
+            echo "- Vulnerabilidades **High**: **$HIGH_COUNT**" >> $GITHUB_STEP_SUMMARY
+            echo "- Total **Critical/High (CVSS >= 7)**: **$TOTAL_HC**" >> $GITHUB_STEP_SUMMARY
+            if [ "$TOTAL_HC" -gt 0 ]; then
+              echo "::warning::Dependency-Check detectó $TOTAL_HC vulnerabilidades Critical/High ($CRIT_COUNT Critical, $HIGH_COUNT High) (modo aviso, no bloquea)."
             fi
           else
             echo "- No se generó el informe XML." >> $GITHUB_STEP_SUMMARY
