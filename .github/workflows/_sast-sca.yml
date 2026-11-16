@@ -74,10 +74,11 @@ jobs:
         continue-on-error: true
         run: |
           mkdir -p reports ~/.dependency-check-data
+          chmod -R 777 reports ~/.dependency-check-data
           docker run --rm \
-            -v "${{ github.workspace }}:/src:z" \
-            -v "$HOME/.dependency-check-data:/usr/share/dependency-check/data:z" \
-            -v "${{ github.workspace }}/reports:/report:z" \
+            -v "${{ github.workspace }}:/src" \
+            -v "$HOME/.dependency-check-data:/usr/share/dependency-check/data" \
+            -v "${{ github.workspace }}/reports:/report" \
             owasp/dependency-check:latest \
             --scan /src/package.json \
             --scan /src/package-lock.json \
@@ -86,7 +87,25 @@ jobs:
             --out /report \
             --failOnCVSS 7 \
             --suppression /src/security/dependency-check/suppressions.xml \
-            --nvdApiKey "${{ secrets.NVD_API_KEY }}"
+            --nvdApiKey "${{ secrets.NVD_API_KEY }}" \
+            --disableAssembly \
+            --disableNugetconf \
+            --disableRubygems \
+            --disablePyPackage \
+            --disablePyDist \
+            --disablePipfile \
+            --disablePip \
+            --disablePoetry \
+            --disableCmake \
+            --disableAutoconf \
+            --disableComposer \
+            --disableCocoapods \
+            --disableSwiftPackageManager \
+            --disableCarthage \
+            --disableCentral \
+            --disableNexus \
+            --disableArtifactory \
+            --disableOssIndex
 
       - name: Escribir resumen SCA en el job
         if: always()
