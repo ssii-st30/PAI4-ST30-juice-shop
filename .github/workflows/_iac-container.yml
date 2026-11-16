@@ -10,8 +10,43 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Pendiente de implementar
-        run: echo "Etapa 'iac' pendiente de implementar (persona B)"
+
+      - name: Análisis IaC con KICS (modo aviso)
+        id: kics
+        continue-on-error: true   # modo aviso: informa pero no detiene el pipeline
+        run: |
+          mkdir -p kics-results
+          docker run --rm -v "${{ github.workspace }}:/path" checkmarx/kics:latest scan \
+            -p /path/Dockerfile,/path/terraform,/path/infrastructure,/path/k8s \
+            -o /path/kics-results \
+            --report-formats json \
+            --fail-on critical,high
+
+      - name: Resumen de hallazgos
+        if: always()
+        run: |
+          R=kics-results/results.json
+          C=$(jq '.severity_counters.CRITICAL // 0' $R)
+          H=$(jq '.severity_counters.HIGH // 0' $R)
+          M=$(jq '.severity_counters.MEDIUM // 0' $R)
+          L=$(jq '.severity_counters.LOW // 0' $R)
+          {
+            echo "## KICS (IaC) – modo aviso"
+            echo "| Critical | High | Medium | Low |"
+            echo "|---|---|---|---|"
+            echo "| $C | $H | $M | $L |"
+          } >> "$GITHUB_STEP_SUMMARY"
+          if [ "$((C + H))" -gt 0 ]; then
+            echo "::warning title=KICS::$C críticas y $H altas en la infraestructura (umbral superado, etapa en modo aviso)"
+          fi
+
+      - name: Subir informe
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-kics
+          path: kics-results/results.json
+
   image-scan:
     runs-on: ubuntu-latest
     steps:
