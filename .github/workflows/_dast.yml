@@ -1,5 +1,7 @@
-# DAST
-# Responsable: persona C
+# DAST - Responsable: persona C
+# Juice Shop se levanta como contenedor de servicio y ZAP lo analiza en localhost (uso responsable:
+# solo escaneamos nuestra propia instancia dentro del runner).
+# MODO AVISO: los hallazgos no detienen el pipeline; quien bloquea es el gate final (persona B).
 name: DAST
 
 on:
@@ -8,7 +10,70 @@ on:
 jobs:
   dast:
     runs-on: ubuntu-latest
+    timeout-minutes: 45
+    services:
+      juiceshop:
+        image: ghcr.io/ssii-st30/juice-shop:${{ github.sha }}   # la misma imagen construida y analizada con Trivy
+        credentials:
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+        ports:
+          - 3000:3000
     steps:
       - uses: actions/checkout@v4
-      - name: Pendiente de implementar
-        run: echo "Etapa 'dast' pendiente de implementar (persona C)"
+
+      - name: Esperar a que Juice Shop responda
+        run: |
+          for i in $(seq 1 40); do
+            if curl -sf http://localhost:3000 >/dev/null; then echo "Juice Shop listo"; exit 0; fi
+            sleep 5
+          done
+          echo "::error::Juice Shop no ha arrancado"; exit 1
+
+      - name: Permisos de escritura para el contenedor de ZAP
+        run: chmod -R a+w "$GITHUB_WORKSPACE"
+
+      - name: ZAP baseline (modo aviso)
+        id: zap
+        continue-on-error: true
+        uses: zaproxy/action-baseline@7c4deb10e6261301961c86d65d54a516394f9aed   # v0.14.0 fijada por SHA
+        with:
+          target: 'http://localhost:3000'
+          rules_file_name: 'security/zap/rules.tsv'
+          cmd_options: '-j -m 3 -x zap-report.xml'   # -j = AJAX spider (Juice Shop es una SPA en Angular)
+          allow_issue_writing: false
+          fail_action: true
+          artifact_name: 'zap-html'
+
+      - name: Resumen de alertas
+        if: always()
+        run: |
+          f=zap-report.xml
+          [ -s "$f" ] || { echo "::warning::ZAP no generó informe"; exit 0; }
+          high=$(grep -c '<riskcode>3</riskcode>' "$f" || true)
+          med=$(grep -c '<riskcode>2</riskcode>' "$f" || true)
+          low=$(grep -c '<riskcode>1</riskcode>' "$f" || true)
+          {
+            echo "### ZAP (DAST) - modo aviso"
+            echo "| High | Medium | Low |"; echo "|---|---|---|"; echo "| $high | $med | $low |"
+          } >> "$GITHUB_STEP_SUMMARY"
+          [ "$high" -eq 0 ] || echo "::warning title=ZAP::$high alertas High; el gate final decidirá"
+          [ "${{ steps.zap.outcome }}" != "failure" ] || echo "::warning title=ZAP::Hay alertas en WARN/FAIL; el pipeline continúa (modo aviso)"
+
+      - name: Subir informe (contrato 3.2)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-zap
+          path: zap-report.xml
+          if-no-files-found: warn
+
+      - name: Enviar a DefectDojo
+        if: always()
+        uses: ./.github/actions/defectdojo-import
+        with:
+          file: zap-report.xml
+          scan-type: ZAP Scan
+          tool: ZAP
+          url: ${{ secrets.DEFECTDOJO_URL }}
+          api-key: ${{ secrets.DEFECTDOJO_API_KEY }}
