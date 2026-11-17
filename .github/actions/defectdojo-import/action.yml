@@ -1,0 +1,22 @@
+name: 'DefectDojo import'
+description: 'Sube un informe a DefectDojo con la API v2 (reimport + auto_create_context). Persona C.'
+inputs:
+  file:      { description: 'Ruta del informe', required: true }
+  scan-type: { description: 'Tipo de escaneo en DefectDojo (p. ej. "ZAP Scan")', required: true }
+  tool:      { description: 'Nombre de la herramienta (título del test)', required: true }
+  url:       { description: 'secrets.DEFECTDOJO_URL', required: true }
+  api-key:   { description: 'secrets.DEFECTDOJO_API_KEY', required: true }
+  product:   { description: 'Asset en DefectDojo', required: false, default: 'Juice Shop ST-30' }
+runs:
+  using: composite
+  steps:
+    - name: Importar ${{ inputs.tool }} en DefectDojo
+      shell: bash
+      env:
+        DD_URL: ${{ inputs.url }}
+        DD_API_KEY: ${{ inputs.api-key }}
+        REPORT_FILE: ${{ inputs.file }}
+        SCAN_TYPE: ${{ inputs.scan-type }}
+        TOOL: ${{ inputs.tool }}
+        PRODUCT: ${{ inputs.product }}
+      run: bash "${{ github.action_path }}/import.sh"
