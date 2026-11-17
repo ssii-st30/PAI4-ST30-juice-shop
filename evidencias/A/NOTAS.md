@@ -33,5 +33,5 @@
 3. **Permisos de escritura en el contenedor de Dependency-Check:** Resuelto asignando `chmod -R 777` sobre las carpetas montadas para datos NVD y salida de informes.
 4. **Sensibilidad a mayúsculas/minúsculas y atributos XML en el resumen SCA y doble ejecución de Semgrep:** Corregido usando `grep -Eic "<severity[^>]*>..."` (Dependency-Check v13 exporta `<severity unscored="true">` en minúsculas, contabilizando 5 Critical y 10 High), fijando versiones de ambas herramientas (`1.185.0` y `13.0.0`) y eliminando la acción duplicada de Semgrep.
 
-## 5. Pendiente de integración con Persona C
-- Añadir la llamada a la acción compuesta `.github/actions/defectdojo-import` al final de los jobs `sast` y `sca` cuando esté disponible en `master`.
+## 5. Integración con DefectDojo (Persona C)
+- Conectada la acción compuesta `.github/actions/defectdojo-import` al final de los jobs `sast` (`scan-type: 'Semgrep JSON Report'`) y `sca` (`scan-type: 'Dependency Check Scan'`) mediante `if: always()`, enviando automáticamente ambos informes a DefectDojo usando los secretos `DEFECTDOJO_URL` y `DEFECTDOJO_API_KEY`.
