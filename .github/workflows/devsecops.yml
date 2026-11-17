@@ -39,7 +39,7 @@ jobs:
       contents: read
       packages: write   # publicar la imagen en GHCR
 
-    dast:
+  dast:
     needs: [sast-sca, iac-container]
     uses: ./.github/workflows/_dast.yml
     secrets: inherit
