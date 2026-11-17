@@ -1,0 +1,6 @@
+# Espacio de nombres propio para la aplicación
+# Responsable: persona B
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: juice-shop

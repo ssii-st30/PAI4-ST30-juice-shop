@@ -1,0 +1,17 @@
+# Servicio que expone Juice Shop dentro del clúster (versión inicial, v1)
+# Responsable: persona B
+apiVersion: v1
+kind: Service
+metadata:
+  name: juice-shop
+  namespace: juice-shop
+  labels:
+    app: juice-shop
+spec:
+  type: ClusterIP
+  selector:
+    app: juice-shop
+  ports:
+    - name: http
+      port: 80
+      targetPort: 3000
