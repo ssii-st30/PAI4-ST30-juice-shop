@@ -1,14 +1,72 @@
-# Despliegue
+# Despliegue (simulado en un clúster Kubernetes efímero)
 # Responsable: persona B
+# Solo se ejecuta si el quality gate final pasa (needs: security-gate en devsecops.yml).
+# Despliega EXACTAMENTE la imagen que ha pasado por todo el pipeline (etiqueta = sha del commit)
+# en un clúster kind que vive dentro del runner y desaparece al terminar: no hay producción real.
 name: Despliegue
 
 on:
   workflow_call:
+  workflow_dispatch:   # ensayo manual del procedimiento en el clúster efímero (no es producción)
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+      packages: read   # descargar la imagen de GHCR
+    env:
+      IMAGE: ghcr.io/${{ github.repository_owner }}/juice-shop:${{ github.sha }}
     steps:
       - uses: actions/checkout@v4
-      - name: Pendiente de implementar
-        run: echo "Etapa 'deploy' pendiente de implementar (persona B)"
+
+      - name: Preparar los manifiestos con la imagen del commit
+        run: |
+          mkdir -p rendered
+          for f in k8s/*.yaml; do
+            sed "s|ghcr.io/[^ ]*:IMAGE_TAG|${IMAGE}|" "$f" > "rendered/$(basename "$f")"
+          done
+          grep -n "image:" rendered/deployment.yaml
+
+      - name: Descargar la imagen desde GHCR
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+          docker pull "$IMAGE"
+
+      - name: Crear un clúster Kubernetes efímero (kind)
+        run: |
+          kind version && kubectl version --client
+          kind create cluster --name st30 --wait 120s
+          kind load docker-image "$IMAGE" --name st30
+
+      - name: Desplegar en Kubernetes
+        run: |
+          kubectl apply -f rendered/namespace.yaml
+          kubectl apply -f rendered/
+          kubectl -n juice-shop rollout status deployment/juice-shop --timeout=300s
+
+      - name: Prueba de humo
+        run: |
+          kubectl -n juice-shop port-forward svc/juice-shop 8080:80 >/dev/null 2>&1 &
+          sleep 5
+          VERSION=$(curl -sf http://localhost:8080/rest/admin/application-version)
+          {
+            echo "## Despliegue (simulado en kind)"
+            echo "- Imagen desplegada: \`$IMAGE\`"
+            echo "- Réplicas listas: $(kubectl -n juice-shop get deploy juice-shop -o jsonpath='{.status.readyReplicas}')"
+            echo "- Prueba de humo: \`$VERSION\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Diagnóstico si el despliegue falla
+        if: failure()
+        run: |
+          kubectl -n juice-shop get pods,events -o wide || true
+          kubectl -n juice-shop describe pods || true
+
+      - name: Guardar los manifiestos desplegados
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deploy-manifests
+          path: rendered/

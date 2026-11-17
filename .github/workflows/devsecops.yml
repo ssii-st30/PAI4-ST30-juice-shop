@@ -39,17 +39,26 @@ jobs:
       contents: read
       packages: write   # publicar la imagen en GHCR
 
-  dast:
+    dast:
     needs: [sast-sca, iac-container]
     uses: ./.github/workflows/_dast.yml
     secrets: inherit
+    permissions:
+      contents: read
+      packages: read    # descargar nuestra imagen de GHCR para atacarla
 
   security-gate:
     needs: [sast-sca, iac-container, dast]
     uses: ./.github/workflows/_security-gate.yml
     secrets: inherit
+    permissions:
+      contents: read
+      issues: write     # abrir el issue de aviso si el gate falla
 
   deploy:
     needs: security-gate
     uses: ./.github/workflows/_deploy.yml
     secrets: inherit
+    permissions:
+      contents: read
+      packages: read    # descargar la imagen de GHCR
