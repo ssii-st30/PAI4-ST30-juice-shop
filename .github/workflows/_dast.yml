@@ -13,7 +13,10 @@ jobs:
     timeout-minutes: 45
     services:
       juiceshop:
-        image: bkimminich/juice-shop:latest   # cuando B publique en GHCR: ghcr.io/ssii-st30/juice-shop:${{ github.sha }}
+        image: ghcr.io/ssii-st30/juice-shop:${{ github.sha }}   # la misma imagen construida y analizada con Trivy
+        credentials:
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
         ports:
           - 3000:3000
     steps:
@@ -33,7 +36,7 @@ jobs:
       - name: ZAP baseline (modo aviso)
         id: zap
         continue-on-error: true
-        uses: zaproxy/action-baseline@v0.14.0     # comprobad la última versión en el Marketplace
+        uses: zaproxy/action-baseline@7c4deb10e6261301961c86d65d54a516394f9aed   # v0.14.0 fijada por SHA
         with:
           target: 'http://localhost:3000'
           rules_file_name: 'security/zap/rules.tsv'
