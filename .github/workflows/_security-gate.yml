@@ -2,6 +2,7 @@
 # Responsable: persona B
 # Reúne los informes de todas las herramientas y detiene el pipeline si hay
 # algún hallazgo Critical o High, o si falta algún informe (fail-closed).
+# Si falla, avisa al equipo con un issue en GitHub (uno por rama, con un comentario por ejecución).
 name: Quality gate final
 
 on:
@@ -10,6 +11,9 @@ on:
 jobs:
   security-gate:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write   # abrir o comentar el issue de aviso
     steps:
       - uses: actions/checkout@v4
 
@@ -30,3 +34,36 @@ jobs:
         with:
           name: gate-result
           path: gate-result.json
+
+      - name: Avisar al equipo (issue en GitHub)
+        if: failure()
+        continue-on-error: true   # si no se puede crear el aviso, el gate sigue fallando igual
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ github.head_ref || github.ref_name }}
+          AUTHOR: ${{ github.actor }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          TITLE="Quality gate fallido en la rama ${BRANCH}"
+          {
+            echo "El quality gate final ha **detenido el pipeline** y no se ha desplegado."
+            echo ""
+            echo "- Commit: \`${GITHUB_SHA::7}\` · autor: @${AUTHOR}"
+            echo "- Ejecución: ${RUN_URL}"
+            echo ""
+            echo "Resultado del gate:"
+            echo '```json'
+            cat gate-result.json
+            echo '```'
+            echo ""
+            echo "Siguiente paso: triaje en DefectDojo (corregir, marcar falso positivo o aceptar el riesgo)."
+          } > aviso.md
+          NUM=$(gh issue list --repo "$GITHUB_REPOSITORY" --state open --limit 100 --json number,title \
+                | jq -r --arg t "$TITLE" '.[] | select(.title == $t) | .number' | head -1)
+          if [ -n "$NUM" ]; then
+            gh issue comment "$NUM" --repo "$GITHUB_REPOSITORY" --body-file aviso.md
+            echo "Aviso añadido al issue #$NUM" >> "$GITHUB_STEP_SUMMARY"
+          else
+            URL=$(gh issue create --repo "$GITHUB_REPOSITORY" --title "$TITLE" --body-file aviso.md)
+            echo "Aviso creado: $URL" >> "$GITHUB_STEP_SUMMARY"
+          fi
