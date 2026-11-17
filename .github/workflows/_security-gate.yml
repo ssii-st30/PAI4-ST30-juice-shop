@@ -1,5 +1,7 @@
-# Quality gate final
+# Quality gate final (BLOQUEANTE)
 # Responsable: persona B
+# Reúne los informes de todas las herramientas y detiene el pipeline si hay
+# algún hallazgo Critical o High, o si falta algún informe (fail-closed).
 name: Quality gate final
 
 on:
@@ -10,5 +12,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Pendiente de implementar
-        run: echo "Etapa 'security-gate' pendiente de implementar (persona B)"
+
+      - name: Descargar los informes de todas las herramientas
+        uses: actions/download-artifact@v4
+        with:
+          pattern: report-*
+          path: reports
+
+      - name: Evaluar el quality gate (BLOQUEANTE, sin continue-on-error)
+        env:
+          GATE_REQUIRED: semgrep,dependency-check,kics,trivy,zap
+        run: python3 security/gate/gate.py reports
+
+      - name: Guardar el resultado del gate
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: gate-result
+          path: gate-result.json
