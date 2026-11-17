@@ -1,0 +1,2836 @@
+<?xml version="1.0"?>
+<analysis xmlns="https://jeremylong.github.io/DependencyCheck/dependency-check.4.1.xsd"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="https://jeremylong.github.io/DependencyCheck/dependency-check.4.1.xsd
+                              https://dependency-check.github.io/DependencyCheck/dependency-check.4.1.xsd">
+    <scanInfo>
+        <engineVersion>13.0.0</engineVersion>
+        <dataSource>
+            <name>NVD API Last Checked</name>
+            <timestamp>2026-11-16T17:37:23Z</timestamp>
+        </dataSource>
+        <dataSource>
+            <name>NVD API Last Modified</name>
+            <timestamp>2026-11-16T17:37:09Z</timestamp>
+        </dataSource>
+    </scanInfo>
+    <projectInfo>
+        <name>Juice Shop ST-30</name>
+        <reportDate>2026-11-16T17:37:32.842245533Z</reportDate>
+        <credits>This product uses the NVD API but is not endorsed or certified by the NVD. This report contains data retrieved from the National Vulnerability Database: https://nvd.nist.gov, Github Advisory Database (via NPM Audit API): https://github.com/advisories/, and the RetireJS community.</credits>
+    </projectInfo>
+    <dependencies>
+        <dependency isVirtual="true">
+            <fileName>@cyclonedx/cyclonedx-npm:4.2.1</fileName>
+            <filePath>/src/package-lock.json?@cyclonedx/cyclonedx-npm</filePath>
+            <md5></md5>
+            <sha1></sha1>
+            <sha256></sha256>
+            <projectReferences>
+                <projectReference>package-lock.json: transitive</projectReference>
+            </projectReferences>
+            <evidenceCollected>
+                <evidence type="vendor" confidence="HIGH">
+                    <source>package.json</source>
+                    <name>name</name>
+                    <value>@cyclonedx/cyclonedx-npm</value>
+                </evidence>
+                <evidence type="product" confidence="HIGHEST">
+                    <source>package.json</source>
+                    <name>name</name>
+                    <value>@cyclonedx/cyclonedx-npm</value>
+                </evidence>
+                <evidence type="version" confidence="HIGHEST">
+                    <source>package.json</source>
+                    <name>version</name>
+                    <value>4.2.1</value>
+                </evidence>
+            </evidenceCollected>
+            <identifiers>
+                <package confidence="HIGHEST">
+                    <id>pkg:npm/%40cyclonedx%2Fcyclonedx-npm@4.2.1</id>
+                </package>
+            </identifiers>
+            <vulnerabilities>
+                <vulnerability source="NPM">
+                    <name>GHSA-q69g-4hcv-6jg4</name>
+                    <severity unscored="true">high</severity>
+                    <cwes>
+<cwe>CWE-78</cwe>                    </cwes>
+                    <description>## Summary
+
+A **Windows-specific** command injection vulnerability exists in `@cyclonedx/cyclonedx-npm` when the CLI is invoked with the `--workspace &lt;value&gt;` option.  
+User-supplied `--workspace` values can be passed to a shell command without proper neutralization on the Windows fallback execution path, enabling attackers to inject arbitrary OS commands.  
+
+The vulnerability was fixed in version [6.0.0][v6.0.0].
+
+## Vulnerability Details
+
+When `cyclonedx-npm` is executed with the `--workspace` option, the provided argument is incorporated into an internal command execution flow.  
+On **Windows systems**, this path can interpret untrusted `--workspace` input as shell syntax if not safely handled.
+
+As a result, specially crafted workspace names can break out of the intended command context and execute arbitrary commands with the privileges of the invoking user.
+
+## Impact
+
+An attacker who can influence the value passed to `--workspace` can execute arbitrary OS commands **on Windows hosts**.  
+This may lead to:
+
+* Arbitrary command execution
+* Data exfiltration
+* Local privilege escalation (depending on runtime context and privileges)
+* Modification or destruction of files accessible to the user running the CLI
+
+The vulnerability affects only scenarios where:
+
+* The user invokes `cyclonedx-npm` with `--workspace &lt;value&gt;`, and
+* The vulnerable execution path is reached on **Windows**.
+
+## Exploitation Conditions (High-Level)
+
+Exploitation requires the attacker to supply or influence the `--workspace` value passed to the CLI.  
+If the tool falls back to the vulnerable shell execution path on **Windows**, specially crafted workspace identifiers can cause unintended command execution.  
+No exploit code is included here to avoid providing weaponizable examples.
+
+## Root Cause
+
+The CLI fallback execution path on **Windows** constructed a shell command using untrusted input from the `--workspace` option.  
+Because the fallback code path does not sanitize or escape the workspace value, special shell metacharacters (e.g., `&gt;`, `&amp;`, `|`) are interpreted by the shell, enabling command injection.
+
+## Fix
+
+The vulnerability was resolved in [PR #1489], which ensures workspace values are handled safely and are no longer passed to a vulnerable shell execution path.
+
+The fix is included in `@cyclonedx/cyclonedx-npm` version [6.0.0][v6.0.0].
+
+## Remediation
+
+* Upgrade to version [6.0.0][v6.0.0] or later, which contains the complete fix.
+* As a temporary mitigation for older versions, ensure that the environment variable `npm_execpath` is set to a `npm-cli.js` before invoking the tool.
+* Avoid passing untrusted or user-controlled values to the `--workspace` option.
+* If immediate upgrade is not possible, prioritize mitigation on **Windows systems**, where exploitability exists.</description>
+                    <references>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/advisories/GHSA-q69g-4hcv-6jg4</url><name>https://github.com/advisories/GHSA-q69g-4hcv-6jg4</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/CycloneDX/cyclonedx-node-npm/releases/tag/v6.0.0</url><name>https://github.com/CycloneDX/cyclonedx-node-npm/releases/tag/v6.0.0</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/CycloneDX/cyclonedx-node-npm/pull/1489</url><name>https://github.com/CycloneDX/cyclonedx-node-npm/pull/1489</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/CycloneDX/cyclonedx-node-npm/security/advisories/GHSA-q69g-4hcv-6jg4</url><name>https://github.com/CycloneDX/cyclonedx-node-npm/security/advisories/GHSA-q69g-4hcv-6jg4</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/CycloneDX/cyclonedx-node-npm/commit/15d3beb5bcd2b0b6eccfdf31192f5103b3f12c0f</url><name>https://github.com/CycloneDX/cyclonedx-node-npm/commit/15d3beb5bcd2b0b6eccfdf31192f5103b3f12c0f</name>                        </reference>
+                    </references>
+                    <vulnerableSoftware>
+                        <software
+                        >cpe:2.3:a:*:\@cyclonedx\/cyclonedx-npm:\&lt;6.0.0:*:*:*:*:*:*:*</software>
+                    </vulnerableSoftware>
+                </vulnerability>
+                <vulnerability source="NPM">
+                    <name>GHSA-v75r-vx73-82pj</name>
+                    <severity unscored="true">high</severity>
+                    <cwes>
+<cwe>CWE-78</cwe>                    </cwes>
+                    <description>## Summary
+A command injection vulnerability exists in `@cyclonedx/cyclonedx-npm` when the CLI is invoked with the `--workspace &lt;value&gt;` option while the environment variable `npm_execpath` is unset or empty.  
+User‑supplied `--workspace` values are passed to a subshell without proper sanitization, enabling attackers to inject arbitrary OS commands.  
+This issue corresponds to **CWE‑78**: Improper Neutralization of Special Elements used in an OS Command.
+
+The vulnerability was fixed in version [5.0.0][v5.0.0].
+
+## Vulnerability Details
+
+When `cyclonedx-npm` is executed with the `--workspace` option, the provided argument is incorporated into an internal shell command.  
+If the environment variable `npm_execpath` is set, the tool uses the npm executable directly and no injection occurs.  
+However, when `npm_execpath` is unset or empty, the tool falls back to spawning a subshell and interpolating the `--workspace` value directly into the command string without proper escaping or neutralization.
+
+As a result, specially crafted workspace names can break out of the intended command context and execute arbitrary commands with the privileges of the invoking user.
+
+## Impact
+
+An attacker who can influence the value passed to `--workspace` can execute arbitrary OS commands.  
+This may lead to:
+
+* Arbitrary command execution
+* Data exfiltration
+* Local privilege escalation (depending on how the tool is used)
+* Modification or destruction of files accessible to the user running the CLI
+
+The vulnerability affects only scenarios where:
+* The user invokes `cyclonedx-npm` with `--workspace &lt;value&gt;`, and
+* The environment variable `npm_execpath` is unset or empty
+
+## Exploitation Conditions (High‑Level)
+
+Exploitation requires the attacker to supply or influence the `--workspace` value passed to the CLI.  
+If the tool falls back to its subshell execution path, specially crafted workspace identifiers can cause unintended command execution.  
+No exploit code is included here to avoid providing weaponizable examples.
+
+## Root Cause
+
+The CLI constructs a shell command using untrusted input from the `--workspace` option.  
+Because the fallback code path does not sanitize or escape the workspace value, special shell metacharacters (e.g., `;`, `&amp;&amp;`, `|`) are interpreted by the shell, enabling command injection.
+
+This behavior matches **CWE‑78**.
+
+## Fix
+
+The vulnerability was resolved in [PR #1476], which ensures that workspace values are handled safely and are no longer passed to a subshell in an unsafe manner.
+
+The fix is included in `@cyclonedx/cyclonedx-npm` version [5.0.0][v5.0.0].
+
+## Remediation
+
+* Upgrade to version [5.0.0][v5.0.0] or later, which contains the complete fix.
+* As a temporary mitigation for older versions, ensure that the environment variable `npm_execpath` is set before invoking the tool.
+* Avoid passing untrusted or user‑controlled values to the `--workspace` option.
+
+[v5.0.0]: https://github.com/CycloneDX/cyclonedx-node-npm/releases/tag/v5.0.0
+[PR #1476]: https://github.com/CycloneDX/cyclonedx-node-npm/pull/1476</description>
+                    <references>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/CycloneDX/cyclonedx-node-npm/pull/1476</url><name>https://github.com/CycloneDX/cyclonedx-node-npm/pull/1476</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/CycloneDX/cyclonedx-node-npm/releases/tag/v5.0.0</url><name>https://github.com/CycloneDX/cyclonedx-node-npm/releases/tag/v5.0.0</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/CycloneDX/cyclonedx-node-npm/security/advisories/GHSA-v75r-vx73-82pj</url><name>https://github.com/CycloneDX/cyclonedx-node-npm/security/advisories/GHSA-v75r-vx73-82pj</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/advisories/GHSA-v75r-vx73-82pj</url><name>https://github.com/advisories/GHSA-v75r-vx73-82pj</name>                        </reference>
+                    </references>
+                    <vulnerableSoftware>
+                        <software
+                        >cpe:2.3:a:*:\@cyclonedx\/cyclonedx-npm:\&gt;\=2.1.0\&lt;5.0.0:*:*:*:*:*:*:*</software>
+                    </vulnerableSoftware>
+                </vulnerability>
+            </vulnerabilities>
+        </dependency>
+        <dependency isVirtual="true">
+            <fileName>@tootallnate/once:1.1.2</fileName>
+            <filePath>/src/package-lock.json?@tootallnate/once</filePath>
+            <md5></md5>
+            <sha1></sha1>
+            <sha256></sha256>
+            <projectReferences>
+                <projectReference>package-lock.json: transitive</projectReference>
+            </projectReferences>
+            <evidenceCollected>
+                <evidence type="vendor" confidence="HIGH">
+                    <source>package.json</source>
+                    <name>name</name>
+                    <value>@tootallnate/once</value>
+                </evidence>
+                <evidence type="product" confidence="HIGHEST">
+                    <source>package.json</source>
+                    <name>name</name>
+                    <value>@tootallnate/once</value>
+                </evidence>
+                <evidence type="version" confidence="HIGHEST">
+                    <source>package.json</source>
+                    <name>version</name>
+                    <value>1.1.2</value>
+                </evidence>
+            </evidenceCollected>
+            <identifiers>
+                <package confidence="HIGHEST">
+                    <id>pkg:npm/%40tootallnate%2Fonce@1.1.2</id>
+                </package>
+            </identifiers>
+            <vulnerabilities>
+                <vulnerability source="NPM">
+                    <name>GHSA-vpq2-c234-7xj6</name>
+                    <severity unscored="true">low</severity>
+                    <cvssV3>
+                        <baseScore>3.299999952316284</baseScore>
+                        <attackVector>LOCAL</attackVector>
+                        <attackComplexity>LOW</attackComplexity>
+                        <privilegesRequired>LOW</privilegesRequired>
+                        <userInteraction>NONE</userInteraction>
+                        <scope>UNCHANGED</scope>
+                        <confidentialityImpact>NONE</confidentialityImpact>
+                        <integrityImpact>NONE</integrityImpact>
+                        <availabilityImpact>LOW</availabilityImpact>
+                        <baseSeverity>LOW</baseSeverity>
+<version>3.1</version>                    </cvssV3>
+                    <cwes>
+<cwe>CWE-705</cwe>                    </cwes>
+                    <description>Versions of the package @tootallnate/once before 3.0.1 are vulnerable to Incorrect Control Flow Scoping in promise resolving when AbortSignal option is used. The Promise remains in a permanently pending state after the signal is aborted, causing any await or .then() usage to hang indefinitely. This can cause a control-flow leak that can lead to stalled requests, blocked workers, or degraded application availability.</description>
+                    <references>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/TooTallNate/once/issues/8</url><name>https://github.com/TooTallNate/once/issues/8</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/TooTallNate/once/commit/b9f43cc5259bee2952d91ad3cdbd201a82df448a</url><name>https://github.com/TooTallNate/once/commit/b9f43cc5259bee2952d91ad3cdbd201a82df448a</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/TooTallNate/once/releases/tag/v2.0.1</url><name>https://github.com/TooTallNate/once/releases/tag/v2.0.1</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://security.snyk.io/vuln/SNYK-JS-TOOTALLNATEONCE-15250612</url><name>https://security.snyk.io/vuln/SNYK-JS-TOOTALLNATEONCE-15250612</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/advisories/GHSA-vpq2-c234-7xj6</url><name>https://github.com/advisories/GHSA-vpq2-c234-7xj6</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://nvd.nist.gov/vuln/detail/CVE-2026-3449</url><name>https://nvd.nist.gov/vuln/detail/CVE-2026-3449</name>                        </reference>
+                    </references>
+                    <vulnerableSoftware>
+                        <software
+                        >cpe:2.3:a:*:\@tootallnate\/once:\&lt;2.0.1:*:*:*:*:*:*:*</software>
+                    </vulnerableSoftware>
+                </vulnerability>
+            </vulnerabilities>
+        </dependency>
+        <dependency isVirtual="true">
+            <fileName>base64url:0.0.6</fileName>
+            <filePath>/src/package-lock.json?base64url</filePath>
+            <md5></md5>
+            <sha1></sha1>
+            <sha256></sha256>
+            <projectReferences>
+                <projectReference>package-lock.json: transitive</projectReference>
+            </projectReferences>
+            <evidenceCollected>
+                <evidence type="vendor" confidence="HIGH">
+                    <source>package.json</source>
+                    <name>name</name>
+                    <value>base64url</value>
+                </evidence>
+                <evidence type="product" confidence="HIGHEST">
+                    <source>package.json</source>
+                    <name>name</name>
+                    <value>base64url</value>
+                </evidence>
+                <evidence type="version" confidence="HIGHEST">
+                    <source>package.json</source>
+                    <name>version</name>
+                    <value>0.0.6</value>
+                </evidence>
+            </evidenceCollected>
+            <identifiers>
+                <package confidence="HIGHEST">
+                    <id>pkg:npm/base64url@0.0.6</id>
+                </package>
+            </identifiers>
+            <vulnerabilities>
+                <vulnerability source="NPM">
+                    <name>GHSA-rvg8-pwq2-xj7q</name>
+                    <severity unscored="true">moderate</severity>
+                    <cwes>
+<cwe>CWE-125</cwe>                    </cwes>
+                    <description>Versions of `base64url` before 3.0.0 are vulnerable to to out-of-bounds reads as it allocates uninitialized Buffers when number is passed in input on Node.js 4.x and below.
+
+
+## Recommendation
+
+Update to version 3.0.0 or later.</description>
+                    <references>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/brianloveswords/base64url/pull/25</url><name>https://github.com/brianloveswords/base64url/pull/25</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/advisories/GHSA-rvg8-pwq2-xj7q</url><name>https://github.com/advisories/GHSA-rvg8-pwq2-xj7q</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://hackerone.com/reports/321687</url><name>https://hackerone.com/reports/321687</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/brianloveswords/base64url/commit/4fbd954a0a69e9d898de2146557cc6e893e79542</url><name>https://github.com/brianloveswords/base64url/commit/4fbd954a0a69e9d898de2146557cc6e893e79542</name>                        </reference>
+                    </references>
+                    <vulnerableSoftware>
+                        <software
+                        >cpe:2.3:a:*:base64url:\&lt;3.0.0:*:*:*:*:*:*:*</software>
+                    </vulnerableSoftware>
+                </vulnerability>
+            </vulnerabilities>
+        </dependency>
+        <dependency isVirtual="true">
+            <fileName>basic-ftp:5.3.1</fileName>
+            <filePath>/src/package-lock.json?basic-ftp</filePath>
+            <md5></md5>
+            <sha1></sha1>
+            <sha256></sha256>
+            <projectReferences>
+                <projectReference>package-lock.json: transitive</projectReference>
+            </projectReferences>
+            <evidenceCollected>
+                <evidence type="vendor" confidence="HIGH">
+                    <source>package.json</source>
+                    <name>name</name>
+                    <value>basic-ftp</value>
+                </evidence>
+                <evidence type="product" confidence="HIGHEST">
+                    <source>package.json</source>
+                    <name>name</name>
+                    <value>basic-ftp</value>
+                </evidence>
+                <evidence type="version" confidence="HIGHEST">
+                    <source>package.json</source>
+                    <name>version</name>
+                    <value>5.3.1</value>
+                </evidence>
+            </evidenceCollected>
+            <identifiers>
+                <package confidence="HIGHEST">
+                    <id>pkg:npm/basic-ftp@5.3.1</id>
+                </package>
+            </identifiers>
+            <vulnerabilities>
+                <vulnerability source="NPM">
+                    <name>GHSA-c475-qrg2-pj4r</name>
+                    <severity unscored="true">high</severity>
+                    <cwes>
+<cwe>CWE-1333</cwe>                    </cwes>
+                    <description>## Summary
+
+`Client.list()` parses the server&apos;s directory listing with the Unix-style parser in `parseListUnix.js`. Its `RE_LINE` regex has two adjacent `(\S+(?:\s\S+)*)` groups (owner name, then group name) followed by a required numeric size group. When a line starts with a valid listing prefix but the tokens after it never satisfy the size and date fields, the engine backtracks over every way of splitting those tokens between the two groups before it can fail, so matching one line costs roughly O(n²) in the line&apos;s length.
+
+The server whose directory a client lists controls that listing, so it can return one line that pins the Node.js event loop for as long as it likes. `parseList()` picks the parser from the last non-blank line only, then runs it on every line, so a normal line placed last selects the Unix parser and a crafted line earlier hits the quadratic match.
+
+## Proof of concept
+
+`npm i basic-ftp &amp;&amp; node repro.js`:
+
+```js
+const net = require(&quot;net&quot;), ftp = require(&quot;basic-ftp&quot;);
+const KB = Number(process.env.LINE_KB || 128);
+const payload = &quot;-rw-r--r-- 1 &quot; + &quot;a &quot;.repeat((KB * 1024 - 13) / 2) + &quot;!&quot;;
+const listing = payload + &quot;\r\n-rw-r--r-- 1 owner group 42 Jan 1 2020 file.txt\r\n&quot;;
+const server = net.createServer(c =&gt; {
+  c.setEncoding(&quot;latin1&quot;); c.write(&quot;220 ok\r\n&quot;); let buf = &quot;&quot;;
+  c.on(&quot;data&quot;, d =&gt; { buf += d; let i;
+    while ((i = buf.indexOf(&quot;\r\n&quot;)) !== -1) {
+      const cmd = buf.slice(0, i).toUpperCase(); buf = buf.slice(i + 2);
+      if (cmd.startsWith(&quot;USER&quot;)) c.write(&quot;331 .\r\n&quot;);
+      else if (cmd.startsWith(&quot;PASS&quot;)) c.write(&quot;230 .\r\n&quot;);
+      else if (cmd.startsWith(&quot;FEAT&quot;)) c.write(&quot;211-x\r\n UTF8\r\n211 End\r\n&quot;);
+      else if (cmd.startsWith(&quot;EPSV&quot;)) { const ds = net.createServer(s =&gt; { s.write(listing); s.end(); });
+        ds.listen(0, &quot;127.0.0.1&quot;, () =&gt; c.write(`229 (|||${ds.address().port}|)\r\n`)); }
+      else if (cmd.startsWith(&quot;LIST&quot;)) { c.write(&quot;150 .\r\n&quot;); setTimeout(() =&gt; c.write(&quot;226 .\r\n&quot;), 50); }
+      else c.write(&quot;200 .\r\n&quot;); } });
+});
+server.listen(0, &quot;127.0.0.1&quot;, async () =&gt; {
+  const client = new ftp.Client(0);
+  await client.access({ host: &quot;127.0.0.1&quot;, port: server.address().port, user: &quot;x&quot;, password: &quot;y&quot; });
+  let beats = 0; const hb = setInterval(() =&gt; beats++, 1000); const t = Date.now();
+  await client.list(); clearInterval(hb);
+  console.log(`list() blocked ${(Date.now() - t) / 1000}s; heartbeats fired: ${beats}`);
+  process.exit(0);
+});
+```
+
+Prints `list() blocked 39.75s; heartbeats fired: 0`, versus ~0.06s for a normal listing. The event loop is frozen the whole time. Cost is quadratic: 32 KB ≈ 2.4s, 64 KB ≈ 9.6s, 128 KB ≈ 39s. `maxListingBytes` defaults to 40 MB, so a single line can be far larger, and ~1 MB already blocks for tens of minutes.
+
+## Impact
+
+One directory listing freezes the whole process, under default options, through the primary API. This is the same &quot;malicious FTP server causes client-side denial of service&quot; shape as GHSA-rp42-5vxx-qpwr, also in `Client.list()` and rated high. The byte cap added there bounds memory, not the parser&apos;s CPU cost.</description>
+                    <references>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://nvd.nist.gov/vuln/detail/CVE-2026-102990</url><name>https://nvd.nist.gov/vuln/detail/CVE-2026-102990</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/advisories/GHSA-c475-qrg2-pj4r</url><name>https://github.com/advisories/GHSA-c475-qrg2-pj4r</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/patrickjuchli/basic-ftp/commit/d0d9e07c56e519587bb50532ac6eadbb0cb0cfe9</url><name>https://github.com/patrickjuchli/basic-ftp/commit/d0d9e07c56e519587bb50532ac6eadbb0cb0cfe9</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/patrickjuchli/basic-ftp/releases/tag/v6.2.1</url><name>https://github.com/patrickjuchli/basic-ftp/releases/tag/v6.2.1</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/patrickjuchli/basic-ftp/security/advisories/GHSA-c475-qrg2-pj4r</url><name>https://github.com/patrickjuchli/basic-ftp/security/advisories/GHSA-c475-qrg2-pj4r</name>                        </reference>
+                    </references>
+                    <vulnerableSoftware>
+                        <software
+                        >cpe:2.3:a:*:basic-ftp:\&lt;\=6.2.0:*:*:*:*:*:*:*</software>
+                    </vulnerableSoftware>
+                </vulnerability>
+                <vulnerability source="NPM">
+                    <name>GHSA-r4jh-29pc-gfqr</name>
+                    <severity unscored="true">moderate</severity>
+                    <cvssV3>
+                        <baseScore>5.900000095367432</baseScore>
+                        <attackVector>NETWORK</attackVector>
+                        <attackComplexity>HIGH</attackComplexity>
+                        <privilegesRequired>NONE</privilegesRequired>
+                        <userInteraction>NONE</userInteraction>
+                        <scope>UNCHANGED</scope>
+                        <confidentialityImpact>NONE</confidentialityImpact>
+                        <integrityImpact>NONE</integrityImpact>
+                        <availabilityImpact>HIGH</availabilityImpact>
+                        <baseSeverity>MEDIUM</baseSeverity>
+<version>3.1</version>                    </cvssV3>
+                    <cwes>
+<cwe>CWE-248</cwe><cwe>CWE-755</cwe>                    </cwes>
+                    <description>### Summary
+
+Client.login() calls FTPContext.send() from inside the control-socket data event handler. send() throws on CR, LF or NUL, and nothing catches the throw. A password containing \r\n therefore raises an uncaught exception and terminates the whole Node.js process. It does not reject the returned promise. Any application that passes untrusted input as the FTP password can be crashed remotely with one request. The same pattern exists in the REST/RETR path of downloadTo() when the remote path contains control characters.
+
+### Details
+
+The CRLF guard (FTPContext.send, src/FtpContext.ts ~L233) correctly refuses to send commands containing \r, \n or \0:
+```ts
+send(command: string) {
+    if (/[\r\n\0]/.test(command)) {
+        throw new Error(`Invalid command: Contains control characters. (${command})`);
+    }
+```
+
+That works when send() is called from handle(), because it runs inside a Promise executor and the throw becomes a rejection. But in two places send() runs inside a response handler, which is called synchronously from the socket’s data event:
+
+Client.login() (src/Client.ts ~L246-248): after the server answers 331 to USER, the handler calls this.ftp.send(&quot;PASS &quot; + password). The USER command was already sent and is valid, so the password is only checked at this point. The call chain is socket.on(&quot;data&quot;) → _onControlSocketData → _passToHandler → responseHandler → send() → throw. No try/catch exists anywhere in that chain, so it becomes an uncaughtException.
+downloadTo() (src/transfer.ts ~L368-370): when startAt &gt; 0, the initial command is REST n, which contains no user-controlled text. When the server answers 350, the handler calls config.ftp.send(&quot;RETR &quot; + config.remotePath). This remotePath was never checked before. A path with a control character throws in the data handler in the same way. (Found by code reading, not reproduced.)
+
+Because the exception happens during data event dispatch, it can’t be handled with try/catch or .catch() around client.access() or downloadTo(). The application only survives if it has a global process.on(&quot;uncaughtException&quot;) handler.
+
+### Proof of concept
+
+Tested on Node.js v22.22.0 against basic-ftp 6.2.2 (built from source). It uses a minimal mock FTP server on localhost:
+
+```js
+const net = require(&quot;net&quot;)
+const ftp = require(&quot;basic-ftp&quot;)
+
+const srv = net.createServer(s =&gt; {
+  s.write(&quot;220 hi\r\n&quot;)
+  s.on(&quot;data&quot;, d =&gt; {
+    const c = d.toString()
+    if (c.startsWith(&quot;USER&quot;)) s.write(&quot;331 pw\r\n&quot;)
+    else if (c.startsWith(&quot;PASS&quot;)) s.write(&quot;230 ok\r\n&quot;)
+    else s.write(&quot;200 ok\r\n&quot;)
+  })
+})
+
+srv.listen(0, async () =&gt; {
+  const c = new ftp.Client(2000)
+  try {
+    await c.access({
+      host: &quot;127.0.0.1&quot;,
+      port: srv.address().port,
+      user: &quot;bob&quot;,
+      password: &quot;x\r\nDELE important&quot;   // attacker-controlled value
+    })
+  } catch (e) {
+    console.log(&quot;rejected:&quot;, e.message)  // never reached
+  }
+  console.log(&quot;handled gracefully&quot;)      // never reached
+  process.exit(0)
+})
+```
+Result: the process terminates with an uncaught exception and neither catch nor the final console.log runs:
+```
+Error: Invalid command: Contains control characters. (PASS x
+DELE important)
+    at FTPContext.send (dist/FtpContext.js:189:19)
+    at Object.responseHandler (dist/Client.js:186:26)
+    at FTPContext._passToHandler (dist/FtpContext.js:322:24)
+    at FTPContext._onControlSocketData (dist/FtpContext.js:312:18)
+    at Socket.&lt;anonymous&gt; (dist/FtpContext.js:133:44)
+```
+The server in the PoC is benign. Any normal FTP server that replies 331 to USER triggers the same crash.
+
+### Impact
+
+Denial of service (uncaught exception, process termination), CWE-248.
+
+It affects applications that pass untrusted or user-influenced values as the FTP password, or as the remote path of a resumed download. Examples are web apps or services that let users enter their own FTP credentials, or file-transfer or backup tools driven by user-supplied paths. One request crashes the whole Node.js process and every other client it serves. It needs no authentication to the FTP server and no special server behaviour. The attacker only needs control over the string. Confidentiality and integrity are not affected, and the CRLF guard still blocks command injection.
+
+Suggested fix:
+
+In FTPContext._passToHandler(), wrap the handler call in a try/catch that rejects the task and calls closeWithError(err).
+Validate password in login(), and remotePath in _downloadToStream(), before any I/O and reject early.</description>
+                    <references>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/patrickjuchli/basic-ftp/releases/tag/v6.2.3</url><name>https://github.com/patrickjuchli/basic-ftp/releases/tag/v6.2.3</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/advisories/GHSA-r4jh-29pc-gfqr</url><name>https://github.com/advisories/GHSA-r4jh-29pc-gfqr</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/patrickjuchli/basic-ftp/security/advisories/GHSA-r4jh-29pc-gfqr</url><name>https://github.com/patrickjuchli/basic-ftp/security/advisories/GHSA-r4jh-29pc-gfqr</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/patrickjuchli/basic-ftp/commit/0495b906bdf891e68806721b07b333dba65ec88e</url><name>https://github.com/patrickjuchli/basic-ftp/commit/0495b906bdf891e68806721b07b333dba65ec88e</name>                        </reference>
+                    </references>
+                    <vulnerableSoftware>
+                        <software
+                        >cpe:2.3:a:*:basic-ftp:\&lt;\=6.2.2:*:*:*:*:*:*:*</software>
+                    </vulnerableSoftware>
+                </vulnerability>
+                <vulnerability source="NPM">
+                    <name>GHSA-5pm8-86m8-9m6r</name>
+                    <severity unscored="true">moderate</severity>
+                    <cvssV3>
+                        <baseScore>5.300000190734863</baseScore>
+                        <attackVector>NETWORK</attackVector>
+                        <attackComplexity>LOW</attackComplexity>
+                        <privilegesRequired>NONE</privilegesRequired>
+                        <userInteraction>NONE</userInteraction>
+                        <scope>UNCHANGED</scope>
+                        <confidentialityImpact>NONE</confidentialityImpact>
+                        <integrityImpact>NONE</integrityImpact>
+                        <availabilityImpact>LOW</availabilityImpact>
+                        <baseSeverity>MEDIUM</baseSeverity>
+<version>3.1</version>                    </cvssV3>
+                    <cwes>
+<cwe>CWE-1321</cwe><cwe>CWE-248</cwe>                    </cwes>
+                    <description>### Summary
+
+basic-ftp&apos;s MLSD directory-listing parser (src/parseListMLSD.ts) looks up fact-handler functions in a plain object literal keyed directly by fact names taken from the FTP server&apos;s response, with no validation. A directory-listing line containing the fact name &quot;__proto__&quot; resolves this lookup to Object.prototype (inherited, non-own, non-function) instead of undefined, so the &quot;not a function&quot; guard is bypassed and the code throws `TypeError: factHandler is not a function`.
+
+This TypeError is not an FTPError, so it is not caught by Client.list()&apos;s retry logic and propagates as a rejected promise out of list() and every API built on top of it (list, downloadToDir, uploadFromDir, clearWorkingDir, removeDir). Any FTP server the client connects to — or any on-path attacker on a plaintext (non-TLS) FTP session — can crash the calling application by returning one crafted line in a directory listing. If the application does not wrap every one of these calls in try/catch, the rejection is unhandled and crashes the Node.js process (default behavior since Node 15).
+
+### Details
+
+File: src/parseListMLSD.ts
+```
+const factHandlersByName: {[key: string]: FactHandler} = {
+    &quot;size&quot;: parseSize,
+    &quot;sizd&quot;: parseSize,
+    &quot;unique&quot;: (value, info) =&gt; { info.uniqueID = value },
+    &quot;modify&quot;: (value, info) =&gt; { ... },
+    &quot;type&quot;: (value, info) =&gt; { ... },
+    &quot;unix.mode&quot;: (value, info) =&gt; { ... },
+    ...
+}
+
+export function parseLine(line: string): FileInfo | undefined {
+    const [ packedFacts, name ] = splitStringOnce(line, &quot; &quot;)
+    ...
+    const facts = packedFacts.split(&quot;;&quot;)
+    for (const fact of facts) {
+        const [ factName, factValue ] = splitStringOnce(fact, &quot;=&quot;)
+        if (!factValue) { continue }
+        const factHandler = factHandlersByName[factName.toLowerCase()]   // &lt;-- unsafe lookup
+        if (!factHandler) { continue }
+        const result = factHandler(factValue, info)                     // &lt;-- throws here
+        ...
+    }
+    return info
+}
+```
+factHandlersByName is a plain `{}` object literal, so it inherits from Object.prototype. Property access does not distinguish own keys from inherited ones. When factName.toLowerCase() === &quot;__proto__&quot;, the bracket lookup factHandlersByName[&quot;__proto__&quot;] returns Object.prototype itself — a truthy, non-undefined value — so the `if (!factHandler) continue` guard does not fire. The code then tries to call Object.prototype as a function: `factHandler(factValue, info)`, which throws `TypeError: factHandler is not a function`.
+
+This line runs inside parseList() (src/parseList.ts), called synchronously from a `.map()` over every line of the listing, which in turn is called from Client._requestListWithCommand() -&gt; Client.list() (src/Client.ts). list()&apos;s only error handling is:
+```
+    catch (err) {
+        const shouldTryNext = err instanceof FTPError
+        if (!shouldTryNext) { throw err }
+        lastError = err
+    }
+```
+A plain TypeError is not an FTPError, so it is immediately rethrown instead of being retried or suppressed, and the Promise returned by list() rejects with it.
+
+Affected call paths (all eventually call Client.list()):
+- Client.list()
+- Client.downloadToDir() / _downloadFromWorkingDir()
+- Client.clearWorkingDir()
+- Client.removeDir()
+
+Only &quot;__proto__&quot; triggers the crash this way; other reserved Object.prototype property names tested (&quot;constructor&quot;, &quot;toString&quot;, &quot;hasOwnProperty&quot;, &quot;valueOf&quot;, &quot;__defineGetter__&quot;) happen to resolve to actual functions on Object.prototype, so they are called without throwing (silently ineffective, not a crash). This confirms the root cause is the use of an unguarded object literal as a dictionary keyed by untrusted server input, rather than something specific to one property.
+
+### Proof of concept
+
+Prerequisites: Node.js, a clone/checkout of basic-ftp, `npm install` then `npm run buildOnly` (or `npx tsc`) to produce dist/.
+
+Step 1 — Minimal reproduction of the parser bug alone:
+
+    node -e &apos;
+    const { parseList } = require(&quot;./dist/parseList&quot;);
+    parseList(&quot;__proto__=x;type=file;size=10; evil.txt&quot;);
+    &apos;
+
+Expected result:
+    Uncaught TypeError: factHandler is not a function
+        at parseLine (.../dist/parseListMLSD.js:...)
+
+Step 2 — End-to-end reproduction through the public Client API, proving a real FTP server can trigger this over the wire with no client modification:
+
+    Save as poc.js in the repo root and run `node poc.js`:
+
+    const net = require(&quot;net&quot;)
+    const { Client } = require(&quot;./dist/index&quot;)
+
+    const server = net.createServer(socket =&gt; {
+        socket.write(&quot;220 fake ftp ready\r\n&quot;)
+        socket.on(&quot;data&quot;, data =&gt; {
+            const cmd = data.toString().trim()
+            if (cmd.startsWith(&quot;USER&quot;)) socket.write(&quot;230 ok\r\n&quot;)
+            else if (cmd.startsWith(&quot;OPTS&quot;) || cmd.startsWith(&quot;TYPE&quot;) ||
+                     cmd.startsWith(&quot;STRU&quot;) || cmd.startsWith(&quot;PBSZ&quot;) ||
+                     cmd.startsWith(&quot;PROT&quot;)) socket.write(&quot;200 ok\r\n&quot;)
+            else if (cmd.startsWith(&quot;FEAT&quot;)) socket.write(&quot;211-Features\r\n MLST type;size;\r\n211 End\r\n&quot;)
+            else if (cmd.startsWith(&quot;EPSV&quot;)) {
+                const dataServer = net.createServer(dsock =&gt; {
+                    // The malicious line: fact name &quot;__proto__&quot;
+                    dsock.end(&quot;__proto__=pwn;type=file;size=4; evil.txt\r\n&quot;)
+                })
+                dataServer.listen(0, &quot;127.0.0.1&quot;, () =&gt; {
+                    const p = dataServer.address().port
+                    socket.write(`229 Entering Extended Passive Mode (|||${p}|)\r\n`)
+                })
+            }
+            else if (cmd.startsWith(&quot;MLSD&quot;) || cmd.startsWith(&quot;LIST&quot;)) {
+                socket.write(&quot;150 Here comes the listing\r\n&quot;)
+                setTimeout(() =&gt; socket.write(&quot;226 Listing complete\r\n&quot;), 50)
+            }
+            else socket.write(&quot;200 ok\r\n&quot;)
+        })
+    })
+
+    server.listen(2121, &quot;127.0.0.1&quot;, async () =&gt; {
+        const client = new Client()
+        try {
+            await client.access({ host: &quot;127.0.0.1&quot;, port: 2121, user: &quot;a&quot;, password: &quot;b&quot; })
+            const files = await client.list()
+            console.log(&quot;list() returned normally (unexpected):&quot;, files)
+        } catch (err) {
+            console.log(&quot;client.list() threw:&quot;, err.constructor.name, &quot;-&quot;, err.message)
+        } finally {
+            client.close()
+            server.close()
+            process.exit(0)
+        }
+    })
+
+Expected output:
+
+    client.list() threw: TypeError - factHandler is not a function
+
+Configuration notes:
+- No TLS, auth bypass, or special server config needed — this is a plain FTP (PASV/EPSV
+  text) session using the server&apos;s FEAT response to turn on MLSD, which is the common
+  path for any modern FTP server.
+- The same crash can be delivered via a LIST-fallback MLSD-shaped line too, since
+  parseList() auto-detects the format from the last listing line.
+- In a real application without a try/catch around list()/downloadToDir()/
+  clearWorkingDir()/removeDir(), this rejection is unhandled and terminates the
+  Node.js process by default (Node &gt;=15 unhandledRejection behavior is &quot;throw&quot;).
+
+### Impact
+
+Type: Denial of Service (CWE-248: Uncaught Exception, enabled by CWE-1321-style unguarded dictionary lookup on an object literal).
+
+Who is impacted: Any application using basic-ftp&apos;s Client.list(), downloadToDir(), uploadFromDir() (via ensureDir/clearWorkingDir paths), clearWorkingDir(), or removeDir() against a server that is malicious, compromised, or reachable by an on-path attacker on a non-TLS FTP session. No authentication to the target server is required beyond whatever credentials the application already uses, and no user interaction is required — a single crafted directory-listing line is sufficient.
+
+Confidentiality: None. Integrity: None. Availability: High — unhandled rejection crashes the Node.js process by default, taking down the whole application/service, not just the FTP operation.</description>
+                    <references>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/patrickjuchli/basic-ftp/security/advisories/GHSA-5pm8-86m8-9m6r</url><name>https://github.com/patrickjuchli/basic-ftp/security/advisories/GHSA-5pm8-86m8-9m6r</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/patrickjuchli/basic-ftp/commit/a22664a45d889f7d281e5bdd212c68c0a58d0ae6</url><name>https://github.com/patrickjuchli/basic-ftp/commit/a22664a45d889f7d281e5bdd212c68c0a58d0ae6</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/patrickjuchli/basic-ftp/releases/tag/v6.2.4</url><name>https://github.com/patrickjuchli/basic-ftp/releases/tag/v6.2.4</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/advisories/GHSA-5pm8-86m8-9m6r</url><name>https://github.com/advisories/GHSA-5pm8-86m8-9m6r</name>                        </reference>
+                    </references>
+                    <vulnerableSoftware>
+                        <software
+                        >cpe:2.3:a:*:basic-ftp:\&lt;\=6.2.3:*:*:*:*:*:*:*</software>
+                    </vulnerableSoftware>
+                </vulnerability>
+            </vulnerabilities>
+        </dependency>
+        <dependency isVirtual="true">
+            <fileName>crypto-js:3.3.0</fileName>
+            <filePath>/src/package-lock.json?crypto-js</filePath>
+            <md5></md5>
+            <sha1></sha1>
+            <sha256></sha256>
+            <projectReferences>
+                <projectReference>package-lock.json: transitive</projectReference>
+            </projectReferences>
+            <evidenceCollected>
+                <evidence type="vendor" confidence="HIGH">
+                    <source>package.json</source>
+                    <name>name</name>
+                    <value>crypto-js</value>
+                </evidence>
+                <evidence type="product" confidence="HIGHEST">
+                    <source>package.json</source>
+                    <name>name</name>
+                    <value>crypto-js</value>
+                </evidence>
+                <evidence type="version" confidence="HIGHEST">
+                    <source>package.json</source>
+                    <name>version</name>
+                    <value>3.3.0</value>
+                </evidence>
+            </evidenceCollected>
+            <identifiers>
+                <package confidence="HIGHEST">
+                    <id>pkg:npm/crypto-js@3.3.0</id>
+                </package>
+            </identifiers>
+            <vulnerabilities>
+                <vulnerability source="NPM">
+                    <name>GHSA-xwcq-pm8m-c4vf</name>
+                    <severity unscored="true">critical</severity>
+                    <cvssV3>
+                        <baseScore>9.100000381469727</baseScore>
+                        <attackVector>NETWORK</attackVector>
+                        <attackComplexity>LOW</attackComplexity>
+                        <privilegesRequired>NONE</privilegesRequired>
+                        <userInteraction>NONE</userInteraction>
+                        <scope>UNCHANGED</scope>
+                        <confidentialityImpact>HIGH</confidentialityImpact>
+                        <integrityImpact>HIGH</integrityImpact>
+                        <availabilityImpact>NONE</availabilityImpact>
+                        <baseSeverity>CRITICAL</baseSeverity>
+<version>3.1</version>                    </cvssV3>
+                    <cwes>
+<cwe>CWE-327</cwe><cwe>CWE-328</cwe><cwe>CWE-916</cwe>                    </cwes>
+                    <description>### Impact
+#### Summary
+Crypto-js PBKDF2 is 1,000 times weaker than originally specified in 1993, and [at least 1,300,000 times weaker than current industry standard][OWASP PBKDF2 Cheatsheet]. This is because it both (1) defaults to [SHA1][SHA1 wiki], a cryptographic hash algorithm considered insecure [since at least 2005][Cryptanalysis of SHA-1] and (2) defaults to [one single iteration][one iteration src], a &apos;strength&apos; or &apos;difficulty&apos; value specified at 1,000 when specified in 1993. PBKDF2 relies on iteration count as a countermeasure to [preimage][preimage attack] and [collision][collision attack] attacks.
+
+Potential Impact:
+
+1. If used to protect passwords, the impact is high.
+2. If used to generate signatures, the impact is high.
+
+Probability / risk analysis / attack enumeration:
+
+1. [For at most $45,000][SHA1 is a Shambles], an attacker, given control of only the beginning of a crypto-js PBKDF2 input, can create a value which has _identical cryptographic signature_ to any chosen known value.
+4. Due to the [length extension attack] on SHA1, we can create a value that has identical signature to any _unknown_ value, provided it is prefixed by a known value. It does not matter if PBKDF2 applies &apos;[salt][cryptographic salt]&apos; or &apos;[pepper][cryptographic pepper]&apos; or any other secret unknown to the attacker. It will still create an identical signature.
+
+Update: PBKDF2 requires a pseudo-random function that takes two inputs, so HMAC-SHA1 is used rather than plain SHA1. HMAC is not affected by [length extension attacks][Length Extension attack]. However, by defaulting to a single PBKDF2 iteration, the hashes do not benefit from the extra computational complexity that PBKDF2 is supposed to provide. The resulting hashes therefore have little protection against an offline brute-force attack.
+ 
+[cryptographic salt]: https://en.wikipedia.org/wiki/Salt_(cryptography) &quot;Salt (cryptography), Wikipedia&quot;
+[cryptographic pepper]: https://en.wikipedia.org/wiki/Pepper_(cryptography) &quot;Pepper (cryptography), Wikipedia&quot;
+[SHA1 wiki]: https://en.wikipedia.org/wiki/SHA-1 &quot;SHA-1, Wikipedia&quot;
+[Cryptanalysis of SHA-1]: https://www.schneier.com/blog/archives/2005/02/cryptanalysis_o.html &quot;Cryptanalysis of SHA-1&quot;
+[one iteration src]: https://github.com/brix/crypto-js/blob/1da3dabf93f0a0435c47627d6f171ad25f452012/src/pbkdf2.js#L22-L26 &quot;crypto-js/src/pbkdf2.js lines 22-26&quot;
+[collision attack]: https://en.wikipedia.org/wiki/Hash_collision &quot;Collision Attack, Wikipedia&quot;
+[preimage attack]: https://en.wikipedia.org/wiki/Preimage_attack &quot;Preimage Attack, Wikipedia&quot;
+[SHA1 is a Shambles]: https://eprint.iacr.org/2020/014.pdf &quot;SHA-1 is a Shambles: First Chosen-Prefix Collision on SHA-1
+and Application to the PGP Web of Trust, Gaëtan Leurent and Thomas Peyrin&quot;
+[Length Extension attack]: https://en.wikipedia.org/wiki/Length_extension_attack &quot;Length extension attack, Wikipedia&quot;
+
+crypto-js has 10,642 public users [as displayed on NPM][crypto-js, NPM], today October 11th 2023. The number of transient dependents is likely several orders of magnitude higher.
+
+A very rough GitHub search[ shows 432 files][GitHub search: affected files] cross GitHub using PBKDF2 in crypto-js in Typescript or JavaScript, but not specifying any number of iterations.
+
+[OWASP PBKDF2 Cheatsheet]: https://cheatsheetseries.owasp.org/cheatsheets/Password_Storage_Cheat_Sheet.html#pbkdf2 &quot;OWASP PBKDF2 Cheatsheet&quot;
+[crypto-js, NPM]: https://www.npmjs.com/package/crypto-js &quot;crypto-js on NPM&quot;
+[GitHub search: affected files]: https://github.com/search?q=%22crypto-js%22+AND+pbkdf2+AND+%28lang%3AJavaScript+OR+lang%3ATypeScript%29++NOT+%22iterations%22&amp;type=code&amp;p=2 &quot;GitHub search: crypto-js AND pbkdf2 AND (lang:JavaScript OR lang:TypeScript)  NOT iterations&quot;
+
+#### Affected versions
+All versions are impacted. This code has been the same since crypto-js was first created.
+
+#### Further Cryptanalysis
+
+The issue here is especially egregious because the length extension attack makes useless any secret that might be appended to the plaintext before calculating its signature.
+
+Consider a scheme in which a secret is created for a user&apos;s username, and that secret is used to protect e.g. their passwords. Let&apos;s say that password is &apos;fake-password&apos;, and their username is &apos;example-username&apos;.
+
+To encrypt the user password via symmetric encryption we might do `encrypt(plaintext: &apos;fake-password&apos;, encryption_key: cryptojs.pbkdf2(value: &apos;example username&apos; + salt_or_pepper))`. By this means, we would, in theory, create an `encryption_key` that can be determined from the public username, but which requires the secret `salt_or_pepper` to generate. This is a common scheme for protecting passwords, as exemplified in bcrypt &amp; scrypt. Because the encryption key is symmetric, we can use this derived key to also decrypt the ciphertext.
+
+Because of the length extension issue, if the attacker obtains (via attack 1), a collision with &apos;example username&apos;, the attacker _does not need to know_ `salt_or_pepper` to decrypt their account data, only their public username.
+
+### Description
+
+PBKDF2 is a key-derivation is a key-derivation function that is used for two main purposes: (1) to stretch or squash a variable length password&apos;s entropy into a fixed size for consumption by another cryptographic operation and (2) to reduce the chance of downstream operations recovering the password input (for example, for password storage).
+
+Unlike the modern [webcrypto](https://w3c.github.io/webcrypto/#pbkdf2-operations) standard, crypto-js does not throw an error when a number of iterations is not specified, and defaults to one single iteration. In the year 2000, when PBKDF2 was originally specified, the minimum number of iterations suggested was set at 1,000. Today, [OWASP recommends 1,300,000][OWASP PBKDF2 Cheatsheet]:
+
+https://github.com/brix/crypto-js/blob/4dcaa7afd08f48cd285463b8f9499cdb242605fa/src/pbkdf2.js#L22-L26
+
+### Patches
+No available patch. The package is not maintained.
+
+### Workarounds
+Consult the [OWASP PBKDF2 Cheatsheet]. Configure to use SHA256 with at least 250,000 iterations.
+
+### Coordinated disclosure
+This issue was simultaneously submitted to [crypto-js](https://github.com/brix/crypto-js) and [crypto-es](https://github.com/entronad/crypto-es) on the 23rd of October 2023.
+
+### Caveats
+
+This issue was found in a security review that was _not_ scoped to crypto-js. This report is not an indication that crypto-js has undergone a formal security assessment by the author.
+
+</description>
+                    <references>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/advisories/GHSA-xwcq-pm8m-c4vf</url><name>https://github.com/advisories/GHSA-xwcq-pm8m-c4vf</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://nvd.nist.gov/vuln/detail/CVE-2023-46233</url><name>https://nvd.nist.gov/vuln/detail/CVE-2023-46233</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/brix/crypto-js/commit/421dd538b2d34e7c24a5b72cc64dc2b9167db40a</url><name>https://github.com/brix/crypto-js/commit/421dd538b2d34e7c24a5b72cc64dc2b9167db40a</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://lists.debian.org/debian-lts-announce/2023/11/msg00025.html</url><name>https://lists.debian.org/debian-lts-announce/2023/11/msg00025.html</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/brix/crypto-js/security/advisories/GHSA-xwcq-pm8m-c4vf</url><name>https://github.com/brix/crypto-js/security/advisories/GHSA-xwcq-pm8m-c4vf</name>                        </reference>
+                    </references>
+                    <vulnerableSoftware>
+                        <software
+                        >cpe:2.3:a:*:crypto-js:\&lt;4.2.0:*:*:*:*:*:*:*</software>
+                    </vulnerableSoftware>
+                </vulnerability>
+                <vulnerability source="NPM">
+                    <name>GHSA-rg76-677x-56q9</name>
+                    <severity unscored="true">critical</severity>
+                    <cvssV3>
+                        <baseScore>9.0</baseScore>
+                        <attackVector>NETWORK</attackVector>
+                        <attackComplexity>HIGH</attackComplexity>
+                        <privilegesRequired>NONE</privilegesRequired>
+                        <userInteraction>NONE</userInteraction>
+                        <scope>CHANGED</scope>
+                        <confidentialityImpact>HIGH</confidentialityImpact>
+                        <integrityImpact>HIGH</integrityImpact>
+                        <availabilityImpact>HIGH</availabilityImpact>
+                        <baseSeverity>CRITICAL</baseSeverity>
+<version>3.1</version>                    </cvssV3>
+                    <cwes>
+<cwe>CWE-334</cwe><cwe>CWE-338</cwe><cwe>CWE-331</cwe>                    </cwes>
+                    <description>### Summary
+
+`CryptoJS.lib.WordArray.random()` in affected versions is not a cryptographically secure random number generator. Nominal requests for 128 or 256 bits of entropy produce effective search spaces of approximately 2^39 and 2^47 possibilities — small enough to enumerate on commodity hardware.
+
+Coinspect&apos;s [Ill Bloom](https://www.coinspect.com/blog/ill-bloom-investigation/) investigation confirmed that downstream wallet applications used this function as the entropy source for BIP39 recovery phrases.
+
+**An application is affected only if it uses the vulnerable function to generate security-sensitive values.** 
+
+Merely depending on `crypto-js &lt; 4.0.0` is not sufficient to be exploitable.
+
+### Details
+
+The affected implementation used a custom variation of George Marsaglia&apos;s Multiply-With-Carry PRNG, seeded from `Math.random()`. It was introduced in 3.1.2-4 (June 2014, commit brix/crypto-js@ff1f003) in response to issue \#7, and was present in every 3.x release except 3.2.0 and 3.2.1. That **change was reverted in 3.3.0** because it was considered a breaking change, so projects tracking the 3.x line could resolve to newer versions that still contained the weak generator. 
+
+4.0.0 replaced the generator with the platform&apos;s native cryptographic API.
+
+Applying PBKDF2, another KDF, or a cryptographic hash after the vulnerable generator does not restore missing entropy.
+
+### Proof of concept
+
+Coinspect reproduced the attack end to end:
+
+1. Reimplemented the affected `WordArray.random()` behavior.  
+2. Enumerated the feasible outputs of the underlying PRNG.  
+3. Converted candidate entropy values into valid BIP39 recovery phrases.  
+4. Derived private keys and addresses across the relevant derivation paths and networks.  
+5. Compared derived addresses against public blockchain data.  
+6. Recovered the private keys controlling funded addresses.
+
+### Impact
+
+An attacker can enumerate the reduced output space and recover security-sensitive values generated through the affected function.
+
+Coinspect documented coordinated drain waves affecting addresses derived from vulnerable recovery phrases. As of July 13, 2026, the measured lower bound of stolen assets across the two events was approximately $5M.
+
+The consequences are persistent:
+
+* Updating an affected library or wallet does not strengthen a previously generated secret.  
+* Importing the same recovery phrase into an updated software or hardware wallet does not remediate the issue.  
+* Previously generated secrets may remain exploitable indefinitely.  
+* Future deposits to an affected address may also be stolen.  
+* Assets may remain exposed across networks or derivation paths that have not yet shown suspicious activity.
+
+### Remediation
+
+**For projects:**
+
+1. Upgrade `crypto-js` to version `4.0.0` or later. Where possible, replace CryptoJS randomness with the native Web Crypto API or Node.js `crypto` module.  
+2. Audit direct, downstream, and transitive dependencies for versions of `crypto-js` matching `&lt; 4.0.0`.  
+3. Determine whether `CryptoJS.lib.WordArray.random()` was used to generate any security-sensitive values.  
+4. Identify the time periods and application versions during which the vulnerable generation path was present.  
+5. Treat all long-term secrets generated through an affected path as compromised and rotate them.  
+6. Notify affected users that installing an update is insufficient when a long-term secret was generated by the vulnerable code.
+
+**For wallet users:** create a new wallet with a newly generated recovery phrase from a trustworthy source and migrate assets to addresses derived from it. Do not import the existing recovery phrase into the new wallet.
+
+### Public address checker
+
+Coinspect provides a public checker for addresses identified in the known Ill Bloom exposed-address datasets:
+
+[https://illbloom.org/](https://illbloom.org/)
+
+Only public blockchain addresses should be entered. Users must **never enter a recovery phrase**, seed phrase, mnemonic, private key, password, or wallet backup file.
+
+A match indicates that funds controlled by the same recovery phrase may be at immediate risk. A negative result only means that the submitted address was not found in the currently published datasets.
+
+### References
+
+* Ill Bloom research site and public address checker:  
+  [https://illbloom.org/](https://illbloom.org/)  
+* Coinspect investigation overview:  
+  [https://www.coinspect.com/blog/ill-bloom-investigation/](https://www.coinspect.com/blog/ill-bloom-investigation/)  
+* CryptoJS issue \#7 — `randomBytes is not random enough`:  
+  [https://github.com/brix/crypto-js/issues/7](https://github.com/brix/crypto-js/issues/7)  
+* Commit introducing the MWC-based implementation:  
+  [https://github.com/brix/crypto-js/commit/ff1f0032ff58aedfcc44eb6aa7b2c78207a98009](https://github.com/brix/crypto-js/commit/ff1f0032ff58aedfcc44eb6aa7b2c78207a98009)  
+* Changes between CryptoJS `3.3.0` and `4.0.0`:  
+  [https://github.com/brix/crypto-js/compare/3.3.0...4.0.0](https://github.com/brix/crypto-js/compare/3.3.0...4.0.0)  
+* Downstream `ferrumnet/bip39` fork:  
+  [https://github.com/ferrumnet/bip39](https://github.com/ferrumnet/bip39)</description>
+                    <references>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/brix/crypto-js/commit/b405ff597fb3ac76a7bdfbc72dca10ba1079b1d5</url><name>https://github.com/brix/crypto-js/commit/b405ff597fb3ac76a7bdfbc72dca10ba1079b1d5</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/advisories/GHSA-rg76-677x-56q9</url><name>https://github.com/advisories/GHSA-rg76-677x-56q9</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/brix/crypto-js/security/advisories/GHSA-rg76-677x-56q9</url><name>https://github.com/brix/crypto-js/security/advisories/GHSA-rg76-677x-56q9</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://www.coinspect.com/blog/ill-bloom-investigation</url><name>https://www.coinspect.com/blog/ill-bloom-investigation</name>                        </reference>
+                    </references>
+                    <vulnerableSoftware>
+                        <software
+                        >cpe:2.3:a:*:crypto-js:\&lt;4.0.0:*:*:*:*:*:*:*</software>
+                    </vulnerableSoftware>
+                </vulnerability>
+            </vulnerabilities>
+        </dependency>
+        <dependency isVirtual="true">
+            <fileName>express-jwt:0.1.3</fileName>
+            <filePath>/src/package-lock.json?express-jwt</filePath>
+            <md5></md5>
+            <sha1></sha1>
+            <sha256></sha256>
+            <projectReferences>
+                <projectReference>package-lock.json: transitive</projectReference>
+            </projectReferences>
+            <evidenceCollected>
+                <evidence type="vendor" confidence="HIGH">
+                    <source>package.json</source>
+                    <name>name</name>
+                    <value>express-jwt</value>
+                </evidence>
+                <evidence type="product" confidence="HIGHEST">
+                    <source>package.json</source>
+                    <name>name</name>
+                    <value>express-jwt</value>
+                </evidence>
+                <evidence type="version" confidence="HIGHEST">
+                    <source>package.json</source>
+                    <name>version</name>
+                    <value>0.1.3</value>
+                </evidence>
+            </evidenceCollected>
+            <identifiers>
+                <package confidence="HIGHEST">
+                    <id>pkg:npm/express-jwt@0.1.3</id>
+                </package>
+            </identifiers>
+            <vulnerabilities>
+                <vulnerability source="NPM">
+                    <name>GHSA-6g6m-m6h5-w9gf</name>
+                    <severity unscored="true">high</severity>
+                    <cvssV3>
+                        <baseScore>7.699999809265137</baseScore>
+                        <attackVector>NETWORK</attackVector>
+                        <attackComplexity>HIGH</attackComplexity>
+                        <privilegesRequired>LOW</privilegesRequired>
+                        <userInteraction>REQUIRED</userInteraction>
+                        <scope>CHANGED</scope>
+                        <confidentialityImpact>HIGH</confidentialityImpact>
+                        <integrityImpact>HIGH</integrityImpact>
+                        <availabilityImpact>NONE</availabilityImpact>
+                        <baseSeverity>HIGH</baseSeverity>
+<version>3.1</version>                    </cvssV3>
+                    <cwes>
+<cwe>CWE-863</cwe><cwe>CWE-285</cwe>                    </cwes>
+                    <description>### Overview
+Versions before and including 5.3.3, we are not enforcing the **algorithms** entry to be specified in the configuration.
+When **algorithms** is not specified in the configuration, with the combination of jwks-rsa, it may lead to authorization bypass. 
+
+### Am I affected?
+You are affected by this vulnerability if all of the following conditions apply:
+
+You are using express-jwt
+AND 
+You do not have **algorithms**  configured in your express-jwt configuration.
+AND
+You are using libraries such as jwks-rsa as the **secret**. 
+
+### How to fix that?
+Specify **algorithms** in the express-jwt configuration. The following is an example of a proper configuration
+
+``` 
+const checkJwt = jwt({
+  secret: jwksRsa.expressJwtSecret({
+    rateLimit: true,
+    jwksRequestsPerMinute: 5,
+    jwksUri: `https://${DOMAIN}/.well-known/jwks.json`
+  }),
+  // Validate the audience and the issuer.
+  audience: process.env.AUDIENCE,
+  issuer: `https://${DOMAIN}/`,
+  // restrict allowed algorithms
+  algorithms: [&apos;RS256&apos;]
+}); 
+```
+
+### Will this update impact my users?
+The fix provided in patch will not affect your users if you specified the algorithms allowed. The patch now makes **algorithms** a required configuration. 
+
+
+### Credit
+IST Group</description>
+                    <references>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://nvd.nist.gov/vuln/detail/CVE-2020-15084</url><name>https://nvd.nist.gov/vuln/detail/CVE-2020-15084</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/auth0/express-jwt/commit/7ecab5f8f0cab5297c2b863596566eb0c019cdef</url><name>https://github.com/auth0/express-jwt/commit/7ecab5f8f0cab5297c2b863596566eb0c019cdef</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/auth0/express-jwt/security/advisories/GHSA-6g6m-m6h5-w9gf</url><name>https://github.com/auth0/express-jwt/security/advisories/GHSA-6g6m-m6h5-w9gf</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/advisories/GHSA-6g6m-m6h5-w9gf</url><name>https://github.com/advisories/GHSA-6g6m-m6h5-w9gf</name>                        </reference>
+                    </references>
+                    <vulnerableSoftware>
+                        <software
+                        >cpe:2.3:a:*:express-jwt:\&lt;\=5.3.3:*:*:*:*:*:*:*</software>
+                    </vulnerableSoftware>
+                </vulnerability>
+            </vulnerabilities>
+        </dependency>
+        <dependency isVirtual="true">
+            <fileName>file-type:16.5.4</fileName>
+            <filePath>/src/package-lock.json?file-type</filePath>
+            <md5></md5>
+            <sha1></sha1>
+            <sha256></sha256>
+            <projectReferences>
+                <projectReference>package-lock.json: transitive</projectReference>
+            </projectReferences>
+            <evidenceCollected>
+                <evidence type="vendor" confidence="HIGH">
+                    <source>package.json</source>
+                    <name>name</name>
+                    <value>file-type</value>
+                </evidence>
+                <evidence type="product" confidence="HIGHEST">
+                    <source>package.json</source>
+                    <name>name</name>
+                    <value>file-type</value>
+                </evidence>
+                <evidence type="version" confidence="HIGHEST">
+                    <source>package.json</source>
+                    <name>version</name>
+                    <value>16.5.4</value>
+                </evidence>
+            </evidenceCollected>
+            <identifiers>
+                <package confidence="HIGHEST">
+                    <id>pkg:npm/file-type@16.5.4</id>
+                </package>
+            </identifiers>
+            <vulnerabilities>
+                <vulnerability source="NPM">
+                    <name>GHSA-5v7r-6r5c-r473</name>
+                    <severity unscored="true">moderate</severity>
+                    <cvssV3>
+                        <baseScore>5.300000190734863</baseScore>
+                        <attackVector>NETWORK</attackVector>
+                        <attackComplexity>LOW</attackComplexity>
+                        <privilegesRequired>NONE</privilegesRequired>
+                        <userInteraction>NONE</userInteraction>
+                        <scope>UNCHANGED</scope>
+                        <confidentialityImpact>NONE</confidentialityImpact>
+                        <integrityImpact>NONE</integrityImpact>
+                        <availabilityImpact>LOW</availabilityImpact>
+                        <baseSeverity>MEDIUM</baseSeverity>
+<version>3.1</version>                    </cvssV3>
+                    <cwes>
+<cwe>CWE-835</cwe>                    </cwes>
+                    <description>### Impact
+A denial of service vulnerability exists in the ASF (WMV/WMA) file type detection parser. When parsing a crafted input where an ASF sub-header has a `size` field of zero, the parser enters an infinite loop. The `payload` value becomes negative (-24), causing `tokenizer.ignore(payload)` to move the read position backwards, so the same sub-header is read repeatedly forever.
+
+Any application that uses `file-type` to detect the type of untrusted/attacker-controlled input is affected. An attacker can stall the Node.js event loop with a 55-byte payload.
+
+### Patches
+Fixed in version 21.3.1. Users should upgrade to &gt;= 21.3.1.
+
+### Workarounds
+Validate or limit the size of input buffers before passing them to `file-type`, or run file type detection in a worker thread with a timeout.
+
+### References
+- Fix commit: 319abf871b50ba2fa221b4a7050059f1ae096f4f
+
+### Reporter
+
+crnkovic@lokvica.com</description>
+                    <references>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/sindresorhus/file-type/security/advisories/GHSA-5v7r-6r5c-r473</url><name>https://github.com/sindresorhus/file-type/security/advisories/GHSA-5v7r-6r5c-r473</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/sindresorhus/file-type/commit/319abf871b50ba2fa221b4a7050059f1ae096f4f</url><name>https://github.com/sindresorhus/file-type/commit/319abf871b50ba2fa221b4a7050059f1ae096f4f</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/advisories/GHSA-5v7r-6r5c-r473</url><name>https://github.com/advisories/GHSA-5v7r-6r5c-r473</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://nvd.nist.gov/vuln/detail/CVE-2026-31808</url><name>https://nvd.nist.gov/vuln/detail/CVE-2026-31808</name>                        </reference>
+                    </references>
+                    <vulnerableSoftware>
+                        <software
+                        >cpe:2.3:a:*:file-type:\&gt;\=13.0.0\&lt;21.3.1:*:*:*:*:*:*:*</software>
+                    </vulnerableSoftware>
+                </vulnerability>
+            </vulnerabilities>
+        </dependency>
+        <dependency isVirtual="true">
+            <fileName>hbs:4.4.0</fileName>
+            <filePath>/src/package-lock.json?hbs</filePath>
+            <md5></md5>
+            <sha1></sha1>
+            <sha256></sha256>
+            <projectReferences>
+                <projectReference>package-lock.json: transitive</projectReference>
+            </projectReferences>
+            <evidenceCollected>
+                <evidence type="vendor" confidence="HIGH">
+                    <source>package.json</source>
+                    <name>name</name>
+                    <value>hbs</value>
+                </evidence>
+                <evidence type="product" confidence="HIGHEST">
+                    <source>package.json</source>
+                    <name>name</name>
+                    <value>hbs</value>
+                </evidence>
+                <evidence type="version" confidence="HIGHEST">
+                    <source>package.json</source>
+                    <name>version</name>
+                    <value>4.4.0</value>
+                </evidence>
+            </evidenceCollected>
+            <identifiers>
+                <package confidence="HIGHEST">
+                    <id>pkg:npm/hbs@4.4.0</id>
+                </package>
+            </identifiers>
+            <vulnerabilities>
+                <vulnerability source="NPM">
+                    <name>GHSA-7f5c-rpf4-86p8</name>
+                    <severity unscored="true">moderate</severity>
+                    <cvssV3>
+                        <baseScore>4.0</baseScore>
+                        <attackVector>NETWORK</attackVector>
+                        <attackComplexity>HIGH</attackComplexity>
+                        <privilegesRequired>NONE</privilegesRequired>
+                        <userInteraction>NONE</userInteraction>
+                        <scope>CHANGED</scope>
+                        <confidentialityImpact>LOW</confidentialityImpact>
+                        <integrityImpact>NONE</integrityImpact>
+                        <availabilityImpact>NONE</availabilityImpact>
+                        <baseSeverity>MEDIUM</baseSeverity>
+<version>3.1</version>                    </cvssV3>
+                    <cwes>
+<cwe>CWE-538</cwe><cwe>CWE-94</cwe><cwe>CWE-200</cwe>                    </cwes>
+                    <description>The npm hbs package is an Express view engine wrapper for Handlebars. Depending on usage, users of hbs may be vulnerable to a file disclosure vulnerability. There is currently no patch for this vulnerability. hbs mixes pure template data with engine configuration options through the Express render API. By overwriting internal configuration options a file disclosure vulnerability may be triggered in downstream applications. For an example PoC see the referenced GHSL-2021-020.</description>
+                    <references>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/advisories/GHSA-7f5c-rpf4-86p8</url><name>https://github.com/advisories/GHSA-7f5c-rpf4-86p8</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://securitylab.github.com/advisories/GHSL-2021-020-pillarjs-hbs</url><name>https://securitylab.github.com/advisories/GHSL-2021-020-pillarjs-hbs</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://nvd.nist.gov/vuln/detail/CVE-2021-32822</url><name>https://nvd.nist.gov/vuln/detail/CVE-2021-32822</name>                        </reference>
+                    </references>
+                    <vulnerableSoftware>
+                        <software
+                        >cpe:2.3:a:*:hbs:\&lt;\=4.4.0:*:*:*:*:*:*:*</software>
+                    </vulnerableSoftware>
+                </vulnerability>
+            </vulnerabilities>
+        </dependency>
+        <dependency isVirtual="true">
+            <fileName>jsonwebtoken:0.4.0</fileName>
+            <filePath>/src/package-lock.json?jsonwebtoken</filePath>
+            <md5></md5>
+            <sha1></sha1>
+            <sha256></sha256>
+            <projectReferences>
+                <projectReference>package-lock.json: transitive</projectReference>
+            </projectReferences>
+            <evidenceCollected>
+                <evidence type="vendor" confidence="HIGH">
+                    <source>package.json</source>
+                    <name>name</name>
+                    <value>jsonwebtoken</value>
+                </evidence>
+                <evidence type="product" confidence="HIGHEST">
+                    <source>package.json</source>
+                    <name>name</name>
+                    <value>jsonwebtoken</value>
+                </evidence>
+                <evidence type="version" confidence="HIGHEST">
+                    <source>package.json</source>
+                    <name>version</name>
+                    <value>0.4.0</value>
+                </evidence>
+            </evidenceCollected>
+            <identifiers>
+                <package confidence="HIGHEST">
+                    <id>pkg:npm/jsonwebtoken@0.4.0</id>
+                </package>
+            </identifiers>
+            <vulnerabilities>
+                <vulnerability source="NPM">
+                    <name>GHSA-c7hr-j4mj-j2w6</name>
+                    <severity unscored="true">critical</severity>
+                    <cwes>
+<cwe>CWE-20</cwe>                    </cwes>
+                    <description>Versions 4.2.1 and earlier of `jsonwebtoken` are affected by a verification bypass vulnerability. This is a result of weak validation of the JWT algorithm type, occuring when an attacker is allowed to arbitrarily specify the JWT algorithm.
+
+
+
+
+## Recommendation
+
+Update to version 4.2.2 or later.</description>
+                    <references>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://auth0.com/blog/2015/03/31/critical-vulnerabilities-in-json-web-token-libraries/</url><name>https://auth0.com/blog/2015/03/31/critical-vulnerabilities-in-json-web-token-libraries/</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://www.timmclean.net/2015/02/25/jwt-alg-none.html</url><name>https://www.timmclean.net/2015/02/25/jwt-alg-none.html</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://nvd.nist.gov/vuln/detail/CVE-2015-9235</url><name>https://nvd.nist.gov/vuln/detail/CVE-2015-9235</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/auth0/node-jsonwebtoken/commit/1bb584bc382295eeb7ee8c4452a673a77a68b687</url><name>https://github.com/auth0/node-jsonwebtoken/commit/1bb584bc382295eeb7ee8c4452a673a77a68b687</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://www.npmjs.com/advisories/17</url><name>https://www.npmjs.com/advisories/17</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/advisories/GHSA-c7hr-j4mj-j2w6</url><name>https://github.com/advisories/GHSA-c7hr-j4mj-j2w6</name>                        </reference>
+                    </references>
+                    <vulnerableSoftware>
+                        <software
+                        >cpe:2.3:a:*:jsonwebtoken:\&lt;4.2.2:*:*:*:*:*:*:*</software>
+                    </vulnerableSoftware>
+                </vulnerability>
+                <vulnerability source="NPM">
+                    <name>GHSA-8cf7-32gw-wr33</name>
+                    <severity unscored="true">high</severity>
+                    <cvssV3>
+                        <baseScore>8.100000381469727</baseScore>
+                        <attackVector>NETWORK</attackVector>
+                        <attackComplexity>LOW</attackComplexity>
+                        <privilegesRequired>LOW</privilegesRequired>
+                        <userInteraction>NONE</userInteraction>
+                        <scope>UNCHANGED</scope>
+                        <confidentialityImpact>HIGH</confidentialityImpact>
+                        <integrityImpact>HIGH</integrityImpact>
+                        <availabilityImpact>NONE</availabilityImpact>
+                        <baseSeverity>HIGH</baseSeverity>
+<version>3.1</version>                    </cvssV3>
+                    <cwes>
+<cwe>CWE-327</cwe>                    </cwes>
+                    <description># Overview
+
+Versions `&lt;=8.5.1` of `jsonwebtoken` library could be misconfigured so that legacy, insecure key types are used for signature verification. For example, DSA keys could be used with the RS256 algorithm. 
+
+# Am I affected?
+
+You are affected if you are using an algorithm and a key type other than the combinations mentioned below
+
+| Key type |  algorithm                                    |
+|----------|------------------------------------------|
+| ec           | ES256, ES384, ES512                      |
+| rsa          | RS256, RS384, RS512, PS256, PS384, PS512 |
+| rsa-pss  | PS256, PS384, PS512                      |
+
+And for Elliptic Curve algorithms:
+
+| `alg` | Curve      |
+|-------|------------|
+| ES256 | prime256v1 |
+| ES384 | secp384r1  |
+| ES512 | secp521r1  |
+
+# How do I fix it?
+
+Update to version 9.0.0. This version validates for asymmetric key type and algorithm combinations. Please refer to the above mentioned algorithm / key type combinations for the valid secure configuration. After updating to version 9.0.0, If you still intend to continue with signing or verifying tokens using invalid key type/algorithm value combinations, you’ll need to set the `allowInvalidAsymmetricKeyTypes` option to `true` in the `sign()` and/or `verify()` functions.
+
+# Will the fix impact my users?
+
+There will be no impact, if you update to version 9.0.0 and you already use a valid secure combination of key type and algorithm. Otherwise,  use the  `allowInvalidAsymmetricKeyTypes` option  to `true` in the `sign()` and `verify()` functions to continue usage of invalid key type/algorithm combination in 9.0.0 for legacy compatibility. 
+
+</description>
+                    <references>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://nvd.nist.gov/vuln/detail/CVE-2022-23539</url><name>https://nvd.nist.gov/vuln/detail/CVE-2022-23539</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/auth0/node-jsonwebtoken/commit/e1fa9dcc12054a8681db4e6373da1b30cf7016e3</url><name>https://github.com/auth0/node-jsonwebtoken/commit/e1fa9dcc12054a8681db4e6373da1b30cf7016e3</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://security.netapp.com/advisory/ntap-20240621-0007</url><name>https://security.netapp.com/advisory/ntap-20240621-0007</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/auth0/node-jsonwebtoken/security/advisories/GHSA-8cf7-32gw-wr33</url><name>https://github.com/auth0/node-jsonwebtoken/security/advisories/GHSA-8cf7-32gw-wr33</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/advisories/GHSA-8cf7-32gw-wr33</url><name>https://github.com/advisories/GHSA-8cf7-32gw-wr33</name>                        </reference>
+                    </references>
+                    <vulnerableSoftware>
+                        <software
+                        >cpe:2.3:a:*:jsonwebtoken:\&lt;\=8.5.1:*:*:*:*:*:*:*</software>
+                    </vulnerableSoftware>
+                </vulnerability>
+                <vulnerability source="NPM">
+                    <name>GHSA-qwph-4952-7xr6</name>
+                    <severity unscored="true">moderate</severity>
+                    <cvssV3>
+                        <baseScore>6.400000095367432</baseScore>
+                        <attackVector>NETWORK</attackVector>
+                        <attackComplexity>HIGH</attackComplexity>
+                        <privilegesRequired>LOW</privilegesRequired>
+                        <userInteraction>NONE</userInteraction>
+                        <scope>UNCHANGED</scope>
+                        <confidentialityImpact>LOW</confidentialityImpact>
+                        <integrityImpact>HIGH</integrityImpact>
+                        <availabilityImpact>LOW</availabilityImpact>
+                        <baseSeverity>MEDIUM</baseSeverity>
+<version>3.1</version>                    </cvssV3>
+                    <cwes>
+<cwe>CWE-347</cwe><cwe>CWE-327</cwe><cwe>CWE-287</cwe>                    </cwes>
+                    <description># Overview
+
+In versions &lt;=8.5.1 of jsonwebtoken library, lack of algorithm definition and a falsy secret or key in the `jwt.verify()` function can lead to signature validation bypass due to defaulting to the `none` algorithm for signature verification.
+
+# Am I affected?
+You will be affected if all the following are true in the `jwt.verify()` function:
+- a token with no signature is received
+- no algorithms are specified 
+- a falsy (e.g. null, false, undefined) secret or key is passed 
+
+# How do I fix it?
+ 
+Update to version 9.0.0 which removes the default support for the none algorithm in the `jwt.verify()` method. 
+
+# Will the fix impact my users?
+
+There will be no impact, if you update to version 9.0.0 and you don’t need to allow for the `none` algorithm. If you need &apos;none&apos; algorithm, you have to explicitly specify that in `jwt.verify()` options.</description>
+                    <references>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/advisories/GHSA-qwph-4952-7xr6</url><name>https://github.com/advisories/GHSA-qwph-4952-7xr6</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/auth0/node-jsonwebtoken/commit/e1fa9dcc12054a8681db4e6373da1b30cf7016e3</url><name>https://github.com/auth0/node-jsonwebtoken/commit/e1fa9dcc12054a8681db4e6373da1b30cf7016e3</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://security.netapp.com/advisory/ntap-20240621-0007</url><name>https://security.netapp.com/advisory/ntap-20240621-0007</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/auth0/node-jsonwebtoken/security/advisories/GHSA-qwph-4952-7xr6</url><name>https://github.com/auth0/node-jsonwebtoken/security/advisories/GHSA-qwph-4952-7xr6</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://nvd.nist.gov/vuln/detail/CVE-2022-23540</url><name>https://nvd.nist.gov/vuln/detail/CVE-2022-23540</name>                        </reference>
+                    </references>
+                    <vulnerableSoftware>
+                        <software
+                        >cpe:2.3:a:*:jsonwebtoken:\&lt;9.0.0:*:*:*:*:*:*:*</software>
+                    </vulnerableSoftware>
+                </vulnerability>
+                <vulnerability source="NPM">
+                    <name>GHSA-hjrf-2m68-5959</name>
+                    <severity unscored="true">moderate</severity>
+                    <cvssV3>
+                        <baseScore>5.0</baseScore>
+                        <attackVector>NETWORK</attackVector>
+                        <attackComplexity>HIGH</attackComplexity>
+                        <privilegesRequired>LOW</privilegesRequired>
+                        <userInteraction>NONE</userInteraction>
+                        <scope>UNCHANGED</scope>
+                        <confidentialityImpact>LOW</confidentialityImpact>
+                        <integrityImpact>LOW</integrityImpact>
+                        <availabilityImpact>LOW</availabilityImpact>
+                        <baseSeverity>MEDIUM</baseSeverity>
+<version>3.1</version>                    </cvssV3>
+                    <cwes>
+<cwe>CWE-287</cwe><cwe>CWE-1259</cwe>                    </cwes>
+                    <description># Overview
+
+Versions `&lt;=8.5.1` of `jsonwebtoken` library can be misconfigured so that passing a poorly implemented key retrieval function (referring to the `secretOrPublicKey` argument from the [readme link](https://github.com/auth0/node-jsonwebtoken#jwtverifytoken-secretorpublickey-options-callback)) will result in incorrect verification of tokens. There is a possibility of using a different algorithm and key combination in verification  than the one that was used to sign the tokens. Specifically, tokens signed with an asymmetric public key could be verified with a symmetric HS256 algorithm. This can lead to successful validation of forged tokens. 
+
+# Am I affected?
+
+You will be affected if your application is supporting usage of both symmetric key and asymmetric key in jwt.verify() implementation with the same key retrieval function. 
+
+# How do I fix it?
+ 
+Update to version 9.0.0.
+
+# Will the fix impact my users?
+
+There is no impact for end users</description>
+                    <references>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/auth0/node-jsonwebtoken/commit/e1fa9dcc12054a8681db4e6373da1b30cf7016e3</url><name>https://github.com/auth0/node-jsonwebtoken/commit/e1fa9dcc12054a8681db4e6373da1b30cf7016e3</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://nvd.nist.gov/vuln/detail/CVE-2022-23541</url><name>https://nvd.nist.gov/vuln/detail/CVE-2022-23541</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://security.netapp.com/advisory/ntap-20240621-0007</url><name>https://security.netapp.com/advisory/ntap-20240621-0007</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/auth0/node-jsonwebtoken/security/advisories/GHSA-hjrf-2m68-5959</url><name>https://github.com/auth0/node-jsonwebtoken/security/advisories/GHSA-hjrf-2m68-5959</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/advisories/GHSA-hjrf-2m68-5959</url><name>https://github.com/advisories/GHSA-hjrf-2m68-5959</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/auth0/node-jsonwebtoken/releases/tag/v9.0.0</url><name>https://github.com/auth0/node-jsonwebtoken/releases/tag/v9.0.0</name>                        </reference>
+                    </references>
+                    <vulnerableSoftware>
+                        <software
+                        >cpe:2.3:a:*:jsonwebtoken:\&lt;\=8.5.1:*:*:*:*:*:*:*</software>
+                    </vulnerableSoftware>
+                </vulnerability>
+            </vulnerabilities>
+        </dependency>
+        <dependency isVirtual="true">
+            <fileName>jws:0.2.6</fileName>
+            <filePath>/src/package-lock.json?jws</filePath>
+            <md5></md5>
+            <sha1></sha1>
+            <sha256></sha256>
+            <projectReferences>
+                <projectReference>package-lock.json: transitive</projectReference>
+            </projectReferences>
+            <evidenceCollected>
+                <evidence type="vendor" confidence="HIGH">
+                    <source>package.json</source>
+                    <name>name</name>
+                    <value>jws</value>
+                </evidence>
+                <evidence type="product" confidence="HIGHEST">
+                    <source>package.json</source>
+                    <name>name</name>
+                    <value>jws</value>
+                </evidence>
+                <evidence type="version" confidence="HIGHEST">
+                    <source>package.json</source>
+                    <name>version</name>
+                    <value>0.2.6</value>
+                </evidence>
+            </evidenceCollected>
+            <identifiers>
+                <package confidence="HIGHEST">
+                    <id>pkg:npm/jws@0.2.6</id>
+                </package>
+            </identifiers>
+            <vulnerabilities>
+                <vulnerability source="NPM">
+                    <name>GHSA-gjcw-v447-2w7q</name>
+                    <severity unscored="true">high</severity>
+                    <cvssV3>
+                        <baseScore>8.699999809265137</baseScore>
+                        <attackVector>NETWORK</attackVector>
+                        <attackComplexity>HIGH</attackComplexity>
+                        <privilegesRequired>NONE</privilegesRequired>
+                        <userInteraction>NONE</userInteraction>
+                        <scope>CHANGED</scope>
+                        <confidentialityImpact>HIGH</confidentialityImpact>
+                        <integrityImpact>HIGH</integrityImpact>
+                        <availabilityImpact>NONE</availabilityImpact>
+                        <baseSeverity>HIGH</baseSeverity>
+<version>3.1</version>                    </cvssV3>
+                    <description>Affected versions of the `jws` package allow users to select what algorithm the server will use to verify a provided JWT. A malicious actor can use this behaviour to arbitrarily modify the contents of a JWT while still passing verification. For the common use case of the JWT as a bearer token, the end result is a complete authentication bypass with minimal effort.
+
+
+
+
+## Recommendation
+
+Update to version 3.0.0 or later.</description>
+                    <references>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://www.npmjs.com/advisories/88</url><name>https://www.npmjs.com/advisories/88</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://nvd.nist.gov/vuln/detail/CVE-2016-1000223</url><name>https://nvd.nist.gov/vuln/detail/CVE-2016-1000223</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/brianloveswords/node-jws/commit/585d0e1e97b6747c10cf5b7689ccc5618a89b299#diff-4ac32a78649ca5bdd8e0ba38b7006a1e</url><name>https://github.com/brianloveswords/node-jws/commit/585d0e1e97b6747c10cf5b7689ccc5618a89b299#diff-4ac32a78649ca5bdd8e0ba38b7006a1e</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://auth0.com/blog/2015/03/31/critical-vulnerabilities-in-json-web-token-libraries/</url><name>https://auth0.com/blog/2015/03/31/critical-vulnerabilities-in-json-web-token-libraries/</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/advisories/GHSA-gjcw-v447-2w7q</url><name>https://github.com/advisories/GHSA-gjcw-v447-2w7q</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://snyk.io/vuln/npm:jws:20160726</url><name>https://snyk.io/vuln/npm:jws:20160726</name>                        </reference>
+                    </references>
+                    <vulnerableSoftware>
+                        <software
+                        >cpe:2.3:a:*:jws:\&lt;3.0.0:*:*:*:*:*:*:*</software>
+                    </vulnerableSoftware>
+                </vulnerability>
+                <vulnerability source="NPM">
+                    <name>GHSA-869p-cjfg-cm3x</name>
+                    <severity unscored="true">high</severity>
+                    <cvssV3>
+                        <baseScore>7.5</baseScore>
+                        <attackVector>NETWORK</attackVector>
+                        <attackComplexity>LOW</attackComplexity>
+                        <privilegesRequired>NONE</privilegesRequired>
+                        <userInteraction>NONE</userInteraction>
+                        <scope>UNCHANGED</scope>
+                        <confidentialityImpact>NONE</confidentialityImpact>
+                        <integrityImpact>HIGH</integrityImpact>
+                        <availabilityImpact>NONE</availabilityImpact>
+                        <baseSeverity>HIGH</baseSeverity>
+<version>3.1</version>                    </cvssV3>
+                    <cwes>
+<cwe>CWE-347</cwe>                    </cwes>
+                    <description>### Overview
+An improper signature verification vulnerability exists when using auth0/node-jws with the HS256 algorithm under specific conditions.
+
+### Am I Affected?
+You are affected by this vulnerability if you meet all of the following preconditions:
+
+1. Application uses the auth0/node-jws implementation of JSON Web Signatures, versions &lt;=3.2.2 || 4.0.0
+2. Application uses the jws.createVerify() function for HMAC algorithms
+3. Application uses user-provided data from the JSON Web Signature Protected Header or Payload in the HMAC secret lookup routines
+
+You are NOT affected by this vulnerability if you meet any of the following preconditions:
+1. Application uses the jws.verify() interface (note: `auth0/node-jsonwebtoken` users fall into this category and are therefore NOT affected by this vulnerability)
+2. Application uses only asymmetric algorithms (e.g. RS256)
+3. Application doesn’t use user-provided data from the JSON Web Signature Protected Header or Payload in the HMAC secret lookup routines
+
+### Fix
+Upgrade auth0/node-jws version to version 3.2.3 or 4.0.1
+
+### Acknowledgement
+Okta would like to thank Félix Charette for discovering this vulnerability.</description>
+                    <references>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/auth0/node-jws/releases/tag/v4.0.1</url><name>https://github.com/auth0/node-jws/releases/tag/v4.0.1</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/auth0/node-jws/commit/34c45b2c04434f925b638de6a061de9339c0ea2e</url><name>https://github.com/auth0/node-jws/commit/34c45b2c04434f925b638de6a061de9339c0ea2e</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/auth0/node-jws/security/advisories/GHSA-869p-cjfg-cm3x</url><name>https://github.com/auth0/node-jws/security/advisories/GHSA-869p-cjfg-cm3x</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/auth0/node-jws/releases/tag/v3.2.3</url><name>https://github.com/auth0/node-jws/releases/tag/v3.2.3</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/auth0/node-jws/commit/4f6e73f24df42f07d632dec6431ade8eda8d11a6</url><name>https://github.com/auth0/node-jws/commit/4f6e73f24df42f07d632dec6431ade8eda8d11a6</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://nvd.nist.gov/vuln/detail/CVE-2025-65945</url><name>https://nvd.nist.gov/vuln/detail/CVE-2025-65945</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/advisories/GHSA-869p-cjfg-cm3x</url><name>https://github.com/advisories/GHSA-869p-cjfg-cm3x</name>                        </reference>
+                    </references>
+                    <vulnerableSoftware>
+                        <software
+                        >cpe:2.3:a:*:jws:\&lt;3.2.3:*:*:*:*:*:*:*</software>
+                    </vulnerableSoftware>
+                </vulnerability>
+            </vulnerabilities>
+        </dependency>
+        <dependency isVirtual="true">
+            <fileName>lodash:2.4.2</fileName>
+            <filePath>/src/package-lock.json?lodash</filePath>
+            <md5></md5>
+            <sha1></sha1>
+            <sha256></sha256>
+            <projectReferences>
+                <projectReference>package-lock.json: transitive</projectReference>
+            </projectReferences>
+            <evidenceCollected>
+                <evidence type="vendor" confidence="HIGH">
+                    <source>package.json</source>
+                    <name>name</name>
+                    <value>lodash</value>
+                </evidence>
+                <evidence type="product" confidence="HIGHEST">
+                    <source>package.json</source>
+                    <name>name</name>
+                    <value>lodash</value>
+                </evidence>
+                <evidence type="version" confidence="HIGHEST">
+                    <source>package.json</source>
+                    <name>version</name>
+                    <value>2.4.2</value>
+                </evidence>
+            </evidenceCollected>
+            <identifiers>
+                <package confidence="HIGHEST">
+                    <id>pkg:npm/lodash@2.4.2</id>
+                </package>
+            </identifiers>
+            <vulnerabilities>
+                <vulnerability source="NPM">
+                    <name>GHSA-jf85-cpcp-j695</name>
+                    <severity unscored="true">critical</severity>
+                    <cvssV3>
+                        <baseScore>9.100000381469727</baseScore>
+                        <attackVector>NETWORK</attackVector>
+                        <attackComplexity>LOW</attackComplexity>
+                        <privilegesRequired>NONE</privilegesRequired>
+                        <userInteraction>NONE</userInteraction>
+                        <scope>UNCHANGED</scope>
+                        <confidentialityImpact>NONE</confidentialityImpact>
+                        <integrityImpact>HIGH</integrityImpact>
+                        <availabilityImpact>HIGH</availabilityImpact>
+                        <baseSeverity>CRITICAL</baseSeverity>
+<version>3.1</version>                    </cvssV3>
+                    <cwes>
+<cwe>CWE-1321</cwe><cwe>CWE-20</cwe>                    </cwes>
+                    <description>Versions of `lodash` before 4.17.12 are vulnerable to Prototype Pollution.  The function `defaultsDeep` allows a malicious user to modify the prototype of `Object` via `{constructor: {prototype: {...}}}` causing the addition or modification of an existing property that will exist on all objects.
+
+## Recommendation
+
+Update to version 4.17.12 or later.</description>
+                    <references>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://www.oracle.com/security-alerts/cpuoct2020.html</url><name>https://www.oracle.com/security-alerts/cpuoct2020.html</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://www.oracle.com/security-alerts/cpujan2021.html</url><name>https://www.oracle.com/security-alerts/cpujan2021.html</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://support.f5.com/csp/article/K47105354?utm_source=f5support&amp;amp%3Butm_medium=RSS</url><name>https://support.f5.com/csp/article/K47105354?utm_source=f5support&amp;amp%3Butm_medium=RSS</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/lodash/lodash/pull/4336</url><name>https://github.com/lodash/lodash/pull/4336</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://support.f5.com/csp/article/K47105354?utm_source=f5support&amp;amp;utm_medium=RSS</url><name>https://support.f5.com/csp/article/K47105354?utm_source=f5support&amp;amp;utm_medium=RSS</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://security.netapp.com/advisory/ntap-20191004-0005</url><name>https://security.netapp.com/advisory/ntap-20191004-0005</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://snyk.io/vuln/SNYK-JS-LODASH-450202</url><name>https://snyk.io/vuln/SNYK-JS-LODASH-450202</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://nvd.nist.gov/vuln/detail/CVE-2019-10744</url><name>https://nvd.nist.gov/vuln/detail/CVE-2019-10744</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/advisories/GHSA-jf85-cpcp-j695</url><name>https://github.com/advisories/GHSA-jf85-cpcp-j695</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/rubysec/ruby-advisory-db/blob/master/gems/lodash-rails/CVE-2019-10744.yml</url><name>https://github.com/rubysec/ruby-advisory-db/blob/master/gems/lodash-rails/CVE-2019-10744.yml</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://access.redhat.com/errata/RHSA-2019:3024</url><name>https://access.redhat.com/errata/RHSA-2019:3024</name>                        </reference>
+                    </references>
+                    <vulnerableSoftware>
+                        <software
+                        >cpe:2.3:a:*:lodash:\&lt;4.17.12:*:*:*:*:*:*:*</software>
+                    </vulnerableSoftware>
+                </vulnerability>
+                <vulnerability source="NPM">
+                    <name>GHSA-35jh-r3h4-6jhm</name>
+                    <severity unscored="true">high</severity>
+                    <cvssV3>
+                        <baseScore>7.199999809265137</baseScore>
+                        <attackVector>NETWORK</attackVector>
+                        <attackComplexity>LOW</attackComplexity>
+                        <privilegesRequired>HIGH</privilegesRequired>
+                        <userInteraction>NONE</userInteraction>
+                        <scope>UNCHANGED</scope>
+                        <confidentialityImpact>HIGH</confidentialityImpact>
+                        <integrityImpact>HIGH</integrityImpact>
+                        <availabilityImpact>HIGH</availabilityImpact>
+                        <baseSeverity>HIGH</baseSeverity>
+<version>3.1</version>                    </cvssV3>
+                    <cwes>
+<cwe>CWE-77</cwe><cwe>CWE-94</cwe>                    </cwes>
+                    <description>`lodash` versions prior to 4.17.21 are vulnerable to Command Injection via the template function.</description>
+                    <references>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://snyk.io/vuln/SNYK-JAVA-ORGWEBJARSBOWER-1074928</url><name>https://snyk.io/vuln/SNYK-JAVA-ORGWEBJARSBOWER-1074928</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/advisories/GHSA-35jh-r3h4-6jhm</url><name>https://github.com/advisories/GHSA-35jh-r3h4-6jhm</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://snyk.io/vuln/SNYK-JS-LODASH-1040724</url><name>https://snyk.io/vuln/SNYK-JS-LODASH-1040724</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://www.oracle.com/security-alerts/cpujul2022.html</url><name>https://www.oracle.com/security-alerts/cpujul2022.html</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/rubysec/ruby-advisory-db/blob/master/gems/lodash-rails/CVE-2021-23337.yml</url><name>https://github.com/rubysec/ruby-advisory-db/blob/master/gems/lodash-rails/CVE-2021-23337.yml</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://www.oracle.com//security-alerts/cpujul2021.html</url><name>https://www.oracle.com//security-alerts/cpujul2021.html</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://nvd.nist.gov/vuln/detail/CVE-2021-23337</url><name>https://nvd.nist.gov/vuln/detail/CVE-2021-23337</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://www.oracle.com/security-alerts/cpuoct2021.html</url><name>https://www.oracle.com/security-alerts/cpuoct2021.html</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://snyk.io/vuln/SNYK-JAVA-ORGWEBJARSBOWERGITHUBLODASH-1074931</url><name>https://snyk.io/vuln/SNYK-JAVA-ORGWEBJARSBOWERGITHUBLODASH-1074931</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://cert-portal.siemens.com/productcert/pdf/ssa-637483.pdf</url><name>https://cert-portal.siemens.com/productcert/pdf/ssa-637483.pdf</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://snyk.io/vuln/SNYK-JAVA-ORGWEBJARSNPM-1074929</url><name>https://snyk.io/vuln/SNYK-JAVA-ORGWEBJARSNPM-1074929</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://snyk.io/vuln/SNYK-JAVA-ORGFUJIONWEBJARS-1074932</url><name>https://snyk.io/vuln/SNYK-JAVA-ORGFUJIONWEBJARS-1074932</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/lodash/lodash/commit/3469357cff396a26c363f8c1b5a91dde28ba4b1c</url><name>https://github.com/lodash/lodash/commit/3469357cff396a26c363f8c1b5a91dde28ba4b1c</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/lodash/lodash/blob/ddfd9b11a0126db2302cb70ec9973b66baec0975/lodash.js#L14851</url><name>https://github.com/lodash/lodash/blob/ddfd9b11a0126db2302cb70ec9973b66baec0975/lodash.js#L14851</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://www.oracle.com/security-alerts/cpujan2022.html</url><name>https://www.oracle.com/security-alerts/cpujan2022.html</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://security.netapp.com/advisory/ntap-20210312-0006</url><name>https://security.netapp.com/advisory/ntap-20210312-0006</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://snyk.io/vuln/SNYK-JAVA-ORGWEBJARS-1074930</url><name>https://snyk.io/vuln/SNYK-JAVA-ORGWEBJARS-1074930</name>                        </reference>
+                    </references>
+                    <vulnerableSoftware>
+                        <software
+                        >cpe:2.3:a:*:lodash:\&lt;4.17.21:*:*:*:*:*:*:*</software>
+                    </vulnerableSoftware>
+                </vulnerability>
+                <vulnerability source="NPM">
+                    <name>GHSA-4xc9-xhrj-v574</name>
+                    <severity unscored="true">high</severity>
+                    <cwes>
+<cwe>CWE-400</cwe>                    </cwes>
+                    <description>Versions of `lodash` before 4.17.11 are vulnerable to prototype pollution. 
+
+The vulnerable functions are &apos;defaultsDeep&apos;, &apos;merge&apos;, and &apos;mergeWith&apos; which allow a malicious user to modify the prototype of `Object` via `{constructor: {prototype: {...}}}` causing the addition or modification of an existing property that will exist on all objects.
+
+
+
+
+## Recommendation
+
+Update to version 4.17.11 or later.</description>
+                    <references>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/advisories/GHSA-4xc9-xhrj-v574</url><name>https://github.com/advisories/GHSA-4xc9-xhrj-v574</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://nvd.nist.gov/vuln/detail/CVE-2018-16487</url><name>https://nvd.nist.gov/vuln/detail/CVE-2018-16487</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://hackerone.com/reports/380873</url><name>https://hackerone.com/reports/380873</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://security.netapp.com/advisory/ntap-20190919-0004</url><name>https://security.netapp.com/advisory/ntap-20190919-0004</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/lodash/lodash/commit/90e6199a161b6445b01454517b40ef65ebecd2ad</url><name>https://github.com/lodash/lodash/commit/90e6199a161b6445b01454517b40ef65ebecd2ad</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/rubysec/ruby-advisory-db/blob/master/gems/lodash-rails/CVE-2018-16487.yml</url><name>https://github.com/rubysec/ruby-advisory-db/blob/master/gems/lodash-rails/CVE-2018-16487.yml</name>                        </reference>
+                    </references>
+                    <vulnerableSoftware>
+                        <software
+                        >cpe:2.3:a:*:lodash:\&lt;4.17.11:*:*:*:*:*:*:*</software>
+                    </vulnerableSoftware>
+                </vulnerability>
+                <vulnerability source="NPM">
+                    <name>GHSA-fvqr-27wr-82fm</name>
+                    <severity unscored="true">moderate</severity>
+                    <cvssV3>
+                        <baseScore>6.5</baseScore>
+                        <attackVector>NETWORK</attackVector>
+                        <attackComplexity>LOW</attackComplexity>
+                        <privilegesRequired>LOW</privilegesRequired>
+                        <userInteraction>NONE</userInteraction>
+                        <scope>UNCHANGED</scope>
+                        <confidentialityImpact>NONE</confidentialityImpact>
+                        <integrityImpact>HIGH</integrityImpact>
+                        <availabilityImpact>NONE</availabilityImpact>
+                        <baseSeverity>MEDIUM</baseSeverity>
+<version>3.1</version>                    </cvssV3>
+                    <cwes>
+<cwe>CWE-1321</cwe><cwe>CWE-471</cwe>                    </cwes>
+                    <description>Versions of `lodash` before 4.17.5 are vulnerable to prototype pollution. 
+
+The vulnerable functions are &apos;defaultsDeep&apos;, &apos;merge&apos;, and &apos;mergeWith&apos; which allow a malicious user to modify the prototype of `Object` via `__proto__` causing the addition or modification of an existing property that will exist on all objects.
+
+
+
+
+## Recommendation
+
+Update to version 4.17.5 or later.</description>
+                    <references>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://security.netapp.com/advisory/ntap-20190919-0004</url><name>https://security.netapp.com/advisory/ntap-20190919-0004</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://nvd.nist.gov/vuln/detail/CVE-2018-3721</url><name>https://nvd.nist.gov/vuln/detail/CVE-2018-3721</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/advisories/GHSA-fvqr-27wr-82fm</url><name>https://github.com/advisories/GHSA-fvqr-27wr-82fm</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/rubysec/ruby-advisory-db/blob/master/gems/lodash-rails/CVE-2018-3721.yml</url><name>https://github.com/rubysec/ruby-advisory-db/blob/master/gems/lodash-rails/CVE-2018-3721.yml</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://hackerone.com/reports/310443</url><name>https://hackerone.com/reports/310443</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/lodash/lodash/commit/d8e069cc3410082e44eb18fcf8e7f3d08ebe1d4a</url><name>https://github.com/lodash/lodash/commit/d8e069cc3410082e44eb18fcf8e7f3d08ebe1d4a</name>                        </reference>
+                    </references>
+                    <vulnerableSoftware>
+                        <software
+                        >cpe:2.3:a:*:lodash:\&lt;4.17.5:*:*:*:*:*:*:*</software>
+                    </vulnerableSoftware>
+                </vulnerability>
+            </vulnerabilities>
+        </dependency>
+        <dependency isVirtual="true">
+            <fileName>marsdb:0.6.11</fileName>
+            <filePath>/src/package-lock.json?marsdb</filePath>
+            <md5></md5>
+            <sha1></sha1>
+            <sha256></sha256>
+            <projectReferences>
+                <projectReference>package-lock.json: transitive</projectReference>
+            </projectReferences>
+            <evidenceCollected>
+                <evidence type="vendor" confidence="HIGH">
+                    <source>package.json</source>
+                    <name>name</name>
+                    <value>marsdb</value>
+                </evidence>
+                <evidence type="product" confidence="HIGHEST">
+                    <source>package.json</source>
+                    <name>name</name>
+                    <value>marsdb</value>
+                </evidence>
+                <evidence type="version" confidence="HIGHEST">
+                    <source>package.json</source>
+                    <name>version</name>
+                    <value>0.6.11</value>
+                </evidence>
+            </evidenceCollected>
+            <identifiers>
+                <package confidence="HIGHEST">
+                    <id>pkg:npm/marsdb@0.6.11</id>
+                </package>
+            </identifiers>
+            <vulnerabilities>
+                <vulnerability source="NPM">
+                    <name>GHSA-5mrr-rgp6-x4gr</name>
+                    <severity unscored="true">critical</severity>
+                    <cwes>
+<cwe>CWE-77</cwe>                    </cwes>
+                    <description>All versions of `marsdb` are vulnerable to Command Injection. In the `DocumentMatcher` class, selectors on `$where` clauses are passed to a Function constructor unsanitized. This allows attackers to run arbitrary commands in the system when the function is executed.
+
+
+## Recommendation
+
+No fix is currently available. Consider using an alternative package until a fix is made available.</description>
+                    <references>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/bkimminich/juice-shop/issues/1173</url><name>https://github.com/bkimminich/juice-shop/issues/1173</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/advisories/GHSA-5mrr-rgp6-x4gr</url><name>https://github.com/advisories/GHSA-5mrr-rgp6-x4gr</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://www.npmjs.com/advisories/1122</url><name>https://www.npmjs.com/advisories/1122</name>                        </reference>
+                    </references>
+                    <vulnerableSoftware>
+                        <software
+                        >cpe:2.3:a:*:marsdb:\&gt;\=0.0.0:*:*:*:*:*:*:*</software>
+                    </vulnerableSoftware>
+                </vulnerability>
+            </vulnerabilities>
+        </dependency>
+        <dependency isVirtual="true">
+            <fileName>notevil:1.3.3</fileName>
+            <filePath>/src/package-lock.json?notevil</filePath>
+            <md5></md5>
+            <sha1></sha1>
+            <sha256></sha256>
+            <projectReferences>
+                <projectReference>package-lock.json: transitive</projectReference>
+            </projectReferences>
+            <evidenceCollected>
+                <evidence type="vendor" confidence="HIGH">
+                    <source>package.json</source>
+                    <name>name</name>
+                    <value>notevil</value>
+                </evidence>
+                <evidence type="product" confidence="HIGHEST">
+                    <source>package.json</source>
+                    <name>name</name>
+                    <value>notevil</value>
+                </evidence>
+                <evidence type="version" confidence="HIGHEST">
+                    <source>package.json</source>
+                    <name>version</name>
+                    <value>1.3.3</value>
+                </evidence>
+            </evidenceCollected>
+            <identifiers>
+                <package confidence="HIGHEST">
+                    <id>pkg:npm/notevil@1.3.3</id>
+                </package>
+            </identifiers>
+            <vulnerabilities>
+                <vulnerability source="NPM">
+                    <name>GHSA-8g4m-cjm2-96wq</name>
+                    <severity unscored="true">moderate</severity>
+                    <cvssV3>
+                        <baseScore>6.5</baseScore>
+                        <attackVector>NETWORK</attackVector>
+                        <attackComplexity>LOW</attackComplexity>
+                        <privilegesRequired>NONE</privilegesRequired>
+                        <userInteraction>NONE</userInteraction>
+                        <scope>UNCHANGED</scope>
+                        <confidentialityImpact>LOW</confidentialityImpact>
+                        <integrityImpact>LOW</integrityImpact>
+                        <availabilityImpact>NONE</availabilityImpact>
+                        <baseSeverity>MEDIUM</baseSeverity>
+<version>3.1</version>                    </cvssV3>
+                    <cwes>
+<cwe>CWE-1321</cwe>                    </cwes>
+                    <description>This affects all versions of package notevil; all versions of package argencoders-notevil. It is vulnerable to Sandbox Escape leading to Prototype pollution. The package fails to restrict access to the main context, allowing an attacker to add or modify an object&apos;s prototype. **Note:** This vulnerability derives from an incomplete fix in [SNYK-JS-NOTEVIL-608878](https://security.snyk.io/vuln/SNYK-JS-NOTEVIL-608878). This package has been deprecated.</description>
+                    <references>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/advisories/GHSA-8g4m-cjm2-96wq</url><name>https://github.com/advisories/GHSA-8g4m-cjm2-96wq</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://nvd.nist.gov/vuln/detail/CVE-2021-23771</url><name>https://nvd.nist.gov/vuln/detail/CVE-2021-23771</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://snyk.io/vuln/SNYK-JS-NOTEVIL-2385946</url><name>https://snyk.io/vuln/SNYK-JS-NOTEVIL-2385946</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://snyk.io/vuln/SNYK-JS-ARGENCODERSNOTEVIL-2388587</url><name>https://snyk.io/vuln/SNYK-JS-ARGENCODERSNOTEVIL-2388587</name>                        </reference>
+                    </references>
+                    <vulnerableSoftware>
+                        <software
+                        >cpe:2.3:a:*:notevil:\&lt;\=1.3.3:*:*:*:*:*:*:*</software>
+                    </vulnerableSoftware>
+                </vulnerability>
+            </vulnerabilities>
+        </dependency>
+        <dependency isVirtual="true">
+            <fileName>sanitize-html:1.4.2</fileName>
+            <filePath>/src/package-lock.json?sanitize-html</filePath>
+            <md5></md5>
+            <sha1></sha1>
+            <sha256></sha256>
+            <projectReferences>
+                <projectReference>package-lock.json: transitive</projectReference>
+            </projectReferences>
+            <evidenceCollected>
+                <evidence type="vendor" confidence="HIGH">
+                    <source>package.json</source>
+                    <name>name</name>
+                    <value>sanitize-html</value>
+                </evidence>
+                <evidence type="product" confidence="HIGHEST">
+                    <source>package.json</source>
+                    <name>name</name>
+                    <value>sanitize-html</value>
+                </evidence>
+                <evidence type="version" confidence="HIGHEST">
+                    <source>package.json</source>
+                    <name>version</name>
+                    <value>1.4.2</value>
+                </evidence>
+            </evidenceCollected>
+            <identifiers>
+                <package confidence="HIGHEST">
+                    <id>pkg:npm/sanitize-html@1.4.2</id>
+                </package>
+            </identifiers>
+            <vulnerabilities>
+                <vulnerability source="NPM">
+                    <name>GHSA-cgfm-xwp7-2cvr</name>
+                    <severity unscored="true">high</severity>
+                    <cvssV3>
+                        <baseScore>7.5</baseScore>
+                        <attackVector>NETWORK</attackVector>
+                        <attackComplexity>LOW</attackComplexity>
+                        <privilegesRequired>NONE</privilegesRequired>
+                        <userInteraction>NONE</userInteraction>
+                        <scope>UNCHANGED</scope>
+                        <confidentialityImpact>NONE</confidentialityImpact>
+                        <integrityImpact>NONE</integrityImpact>
+                        <availabilityImpact>HIGH</availabilityImpact>
+                        <baseSeverity>HIGH</baseSeverity>
+<version>3.1</version>                    </cvssV3>
+                    <cwes>
+<cwe>CWE-1333</cwe>                    </cwes>
+                    <description>The package sanitize-html before 2.7.1 are vulnerable to Regular Expression Denial of Service (ReDoS) due to insecure global regular expression replacement logic of HTML comment removal.</description>
+                    <references>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/advisories/GHSA-cgfm-xwp7-2cvr</url><name>https://github.com/advisories/GHSA-cgfm-xwp7-2cvr</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/apostrophecms/sanitize-html/pull/557</url><name>https://github.com/apostrophecms/sanitize-html/pull/557</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://security.snyk.io/vuln/SNYK-JS-SANITIZEHTML-2957526</url><name>https://security.snyk.io/vuln/SNYK-JS-SANITIZEHTML-2957526</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://nvd.nist.gov/vuln/detail/CVE-2022-25887</url><name>https://nvd.nist.gov/vuln/detail/CVE-2022-25887</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://security.snyk.io/vuln/SNYK-JAVA-ORGWEBJARSNPM-3008102</url><name>https://security.snyk.io/vuln/SNYK-JAVA-ORGWEBJARSNPM-3008102</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/apostrophecms/sanitize-html/commit/b4682c12fd30e12e82fa2d9b766de91d7d2cd23c</url><name>https://github.com/apostrophecms/sanitize-html/commit/b4682c12fd30e12e82fa2d9b766de91d7d2cd23c</name>                        </reference>
+                    </references>
+                    <vulnerableSoftware>
+                        <software
+                        >cpe:2.3:a:*:sanitize-html:\&lt;2.7.1:*:*:*:*:*:*:*</software>
+                    </vulnerableSoftware>
+                </vulnerability>
+                <vulnerability source="NPM">
+                    <name>GHSA-3j7m-hmh3-9jmp</name>
+                    <severity unscored="true">moderate</severity>
+                    <cvssV3>
+                        <baseScore>6.099999904632568</baseScore>
+                        <attackVector>NETWORK</attackVector>
+                        <attackComplexity>LOW</attackComplexity>
+                        <privilegesRequired>NONE</privilegesRequired>
+                        <userInteraction>REQUIRED</userInteraction>
+                        <scope>CHANGED</scope>
+                        <confidentialityImpact>LOW</confidentialityImpact>
+                        <integrityImpact>LOW</integrityImpact>
+                        <availabilityImpact>NONE</availabilityImpact>
+                        <baseSeverity>MEDIUM</baseSeverity>
+<version>3.1</version>                    </cvssV3>
+                    <cwes>
+<cwe>CWE-79</cwe>                    </cwes>
+                    <description>Affected versions of `sanitize-html` do not sanitize input recursively, which may allow an attacker to execute arbitrary Javascript.
+
+
+## Recommendation
+
+Update to version 1.4.3 or later.</description>
+                    <references>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://www.npmjs.com/advisories/135</url><name>https://www.npmjs.com/advisories/135</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/punkave/sanitize-html/issues/29</url><name>https://github.com/punkave/sanitize-html/issues/29</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/advisories/GHSA-3j7m-hmh3-9jmp</url><name>https://github.com/advisories/GHSA-3j7m-hmh3-9jmp</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/apostrophecms/sanitize-html/issues/29</url><name>https://github.com/apostrophecms/sanitize-html/issues/29</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/apostrophecms/sanitize-html/commit/762fbc7bba389f3f789cc291c1eb2b64f60f2caf</url><name>https://github.com/apostrophecms/sanitize-html/commit/762fbc7bba389f3f789cc291c1eb2b64f60f2caf</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://raw.githubusercontent.com/distributedweaknessfiling/cvelist/master/2016/1000xxx/CVE-2016-1000237.json</url><name>https://raw.githubusercontent.com/distributedweaknessfiling/cvelist/master/2016/1000xxx/CVE-2016-1000237.json</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://nvd.nist.gov/vuln/detail/CVE-2016-1000237</url><name>https://nvd.nist.gov/vuln/detail/CVE-2016-1000237</name>                        </reference>
+                    </references>
+                    <vulnerableSoftware>
+                        <software
+                        >cpe:2.3:a:*:sanitize-html:\&lt;1.4.3:*:*:*:*:*:*:*</software>
+                    </vulnerableSoftware>
+                </vulnerability>
+                <vulnerability source="NPM">
+                    <name>GHSA-jxwj-j7wr-gfrw</name>
+                    <severity unscored="true">moderate</severity>
+                    <cvssV3>
+                        <baseScore>6.099999904632568</baseScore>
+                        <attackVector>NETWORK</attackVector>
+                        <attackComplexity>LOW</attackComplexity>
+                        <privilegesRequired>NONE</privilegesRequired>
+                        <userInteraction>REQUIRED</userInteraction>
+                        <scope>CHANGED</scope>
+                        <confidentialityImpact>LOW</confidentialityImpact>
+                        <integrityImpact>LOW</integrityImpact>
+                        <availabilityImpact>NONE</availabilityImpact>
+                        <baseSeverity>MEDIUM</baseSeverity>
+<version>3.1</version>                    </cvssV3>
+                    <cwes>
+<cwe>CWE-79</cwe>                    </cwes>
+                    <description>### Summary
+A mutation-XSS / allowedTags bypass: when `textarea` (or `xmp`) is included in `allowedTags`, an input containing a literal `&lt;/textarea/&gt;` (a solidus right after the RCDATA end-tag name) lets non-allowed markup such as `&lt;img src=x onerror=…&gt;` pass through `sanitizeHtml()` **live and unescaped**, even though `img`/`onerror` are not in the allowlist. A spec-compliant browser executes the surviving handler — XSS. This is a literal-solidus variant that bypasses the two most recent fixes in this code area (CVE-2026-40186, CVE-2026-44990), both already applied in 2.17.5. The default configuration is not affected.
+
+### Details
+`sanitize-html` emits the text content of HTML raw-text elements (`textarea`, `xmp`) without escaping. Two things combine:
+- **Parser differential:** on input, htmlparser2 does NOT recognize `&lt;/textarea/&gt;` (solidus after the RCDATA
+  end-tag name) as a close tag; it emits `&lt;/textarea/&gt;&lt;img …&gt;` as a single raw-text node.
+- **Unescaped passthrough:** the `ontext` handler (`index.js` ~575-583) appends `textarea`/`xmp` content with
+`result += text` (no `escapeHtml`), assuming it is &quot;already properly encoded&quot; — true for entity-decoded
+  content (what CVE-2026-40186 fixed) but false for this mis-tokenized literal close tag.
+A spec browser treats `&lt;/textarea/&gt;` as a valid `textarea` close, so the following `&lt;img onerror&gt;` is parsed as a live element. The recent fixes addressed entity-encoding (CVE-2026-40186) and the `xmp` default (CVE-2026-44990); neither covers the literal-solidus mis-tokenization, so the raw passthrough still leaks.
+
+### PoC
+```js
+// npm i sanitize-html@2.17.5 parse5 &amp;&amp; node poc.js
+const sanitizeHtml = require(&apos;sanitize-html&apos;);
+const input = &apos;&lt;textarea&gt;&lt;/textarea/&gt;&lt;img src=x onerror=&quot;alert(document.domain)&quot;&gt;&apos;;
+const opts  = { allowedTags: sanitizeHtml.defaults.allowedTags.concat([&apos;textarea&apos;]) };  // img NOT allowed
+console.log(sanitizeHtml(input, opts));
+// =&gt; &lt;textarea&gt;&lt;/textarea/&gt;&lt;img src=x onerror=&quot;alert(document.domain)&quot;&gt;&lt;/textarea&gt;
+//    the &lt;img onerror&gt; survives live and unescaped
+
+console.log(sanitizeHtml(input));   // default config (no textarea allowed) =&gt; &quot;&quot;  (safe)
+```
+Re-parsing the sanitized OUTPUT with **parse5** (the WHATWG HTML parser browsers/jsdom use) yields a **live
+`&lt;img src=x onerror=alert(document.domain)&gt;`** at `body` level (it escaped the textarea RCDATA, not inert text) → the `onerror` fires in a browser. Confirmed on 2.17.5 (Node v24). A canonical `poc.js` is attached.
+&lt;img width=&quot;650&quot; height=&quot;118&quot; alt=&quot;image&quot; src=&quot;https://github.com/user-attachments/assets/d63bb5b7-ba3e-4b0e-a821-86a453ea0352&quot; /&gt;
+
+### Impact
+Cross-site scripting (CWE-79). Requires `textarea` (or `xmp`) in `allowedTags` — a benign-looking, common addition in form builders, CMS, and rich-text editors. Adding a harmless tag that then enables XSS via *non-allowed* `img`/`onerror` breaks the sanitizer&apos;s core contract; the maintainers have fixed this class before (e.g. GHSA-9mrh). An attacker who can submit content rendered through such a configuration achieves stored/reflected XSS (cookie theft, session hijack). Severity Medium (default config is safe; user interaction to view the page). **Suggested fix:** route `textarea`/`xmp` content through `escapeHtml` instead of the raw passthrough, and/or fix the htmlparser2 `&lt;/tag/&gt;` RCDATA end-tag tokenization to match the WHATWG spec.</description>
+                    <references>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/apostrophecms/apostrophe/pull/5501</url><name>https://github.com/apostrophecms/apostrophe/pull/5501</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/apostrophecms/apostrophe/security/advisories/GHSA-jxwj-j7wr-gfrw</url><name>https://github.com/apostrophecms/apostrophe/security/advisories/GHSA-jxwj-j7wr-gfrw</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://nvd.nist.gov/vuln/detail/CVE-2026-63670</url><name>https://nvd.nist.gov/vuln/detail/CVE-2026-63670</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/apostrophecms/apostrophe/commit/eae1fb2b72ec5d1c27d0977509c6482a0408f725</url><name>https://github.com/apostrophecms/apostrophe/commit/eae1fb2b72ec5d1c27d0977509c6482a0408f725</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/advisories/GHSA-jxwj-j7wr-gfrw</url><name>https://github.com/advisories/GHSA-jxwj-j7wr-gfrw</name>                        </reference>
+                    </references>
+                    <vulnerableSoftware>
+                        <software
+                        >cpe:2.3:a:*:sanitize-html:\&lt;\=2.17.5:*:*:*:*:*:*:*</software>
+                    </vulnerableSoftware>
+                </vulnerability>
+                <vulnerability source="NPM">
+                    <name>GHSA-qhxp-v273-g94h</name>
+                    <severity unscored="true">moderate</severity>
+                    <cvssV3>
+                        <baseScore>6.099999904632568</baseScore>
+                        <attackVector>NETWORK</attackVector>
+                        <attackComplexity>LOW</attackComplexity>
+                        <privilegesRequired>NONE</privilegesRequired>
+                        <userInteraction>REQUIRED</userInteraction>
+                        <scope>CHANGED</scope>
+                        <confidentialityImpact>LOW</confidentialityImpact>
+                        <integrityImpact>LOW</integrityImpact>
+                        <availabilityImpact>NONE</availabilityImpact>
+                        <baseSeverity>MEDIUM</baseSeverity>
+<version>3.1</version>                    </cvssV3>
+                    <cwes>
+<cwe>CWE-79</cwe>                    </cwes>
+                    <description>`sanitize-html` prior to version 2.0.0-beta is vulnerable to Cross-site Scripting (XSS). The `sanitizeHtml()` function in `index.js` does not sanitize content when using the custom `transformTags` option, which is intended to convert attribute values into text. As a result, malicious input can be transformed into executable code.</description>
+                    <references>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://nvd.nist.gov/vuln/detail/CVE-2019-25225</url><name>https://nvd.nist.gov/vuln/detail/CVE-2019-25225</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/apostrophecms/sanitize-html/issues/293</url><name>https://github.com/apostrophecms/sanitize-html/issues/293</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/apostrophecms/sanitize-html/commit/712cb6895825c8bb6ede71a16b42bade42abcaf3</url><name>https://github.com/apostrophecms/sanitize-html/commit/712cb6895825c8bb6ede71a16b42bade42abcaf3</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/Checkmarx/Vulnerabilities-Proofs-of-Concept/tree/main/2019/CVE-2019-25225</url><name>https://github.com/Checkmarx/Vulnerabilities-Proofs-of-Concept/tree/main/2019/CVE-2019-25225</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/apostrophecms/sanitize-html/pull/156</url><name>https://github.com/apostrophecms/sanitize-html/pull/156</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/advisories/GHSA-qhxp-v273-g94h</url><name>https://github.com/advisories/GHSA-qhxp-v273-g94h</name>                        </reference>
+                    </references>
+                    <vulnerableSoftware>
+                        <software
+                        >cpe:2.3:a:*:sanitize-html:\&lt;2.0.0-beta:*:*:*:*:*:*:*</software>
+                    </vulnerableSoftware>
+                </vulnerability>
+                <vulnerability source="NPM">
+                    <name>GHSA-cv27-6wvh-8x7j</name>
+                    <severity unscored="true">moderate</severity>
+                    <cvssV3>
+                        <baseScore>5.400000095367432</baseScore>
+                        <attackVector>NETWORK</attackVector>
+                        <attackComplexity>LOW</attackComplexity>
+                        <privilegesRequired>LOW</privilegesRequired>
+                        <userInteraction>REQUIRED</userInteraction>
+                        <scope>CHANGED</scope>
+                        <confidentialityImpact>LOW</confidentialityImpact>
+                        <integrityImpact>LOW</integrityImpact>
+                        <availabilityImpact>NONE</availabilityImpact>
+                        <baseSeverity>MEDIUM</baseSeverity>
+<version>3.1</version>                    </cvssV3>
+                    <cwes>
+<cwe>CWE-79</cwe>                    </cwes>
+                    <description>### Summary
+
+CVE-2026-53606 expanded `allowedSchemesAppliedToAttributes` so named URL attributes (`action`, `formaction`, `data`, `poster`, `background`, later `ping`, `xlink:href`, …) go through `naughtyHref()`. A **URL nested inside `meta` `content`** (`http-equiv=refresh`) is not an attribute name on that list, so the embedded destination is never scheme-checked.
+
+Default `allowedTags` still omit `meta`. Same non-default integrator config as 53606: allow `meta` plus `http-equiv` / `content`.
+
+On **2.17.7**:
+
+```text
+sanitizeHtml(
+  &apos;&lt;meta http-equiv=&quot;refresh&quot; content=&quot;0;url=javascript:alert(1)&quot;&gt;&apos;,
+  { allowedTags: [&apos;meta&apos;], allowedAttributes: { meta: [&apos;http-equiv&apos;, &apos;content&apos;] } }
+)
+// =&gt; &lt;meta http-equiv=&quot;refresh&quot; content=&quot;0;url=javascript:alert(1)&quot; /&gt;
+```
+
+`data:text/html,…` and arbitrary `https:` destinations also survive. `formaction=&quot;javascript:…&quot;` (53606) is stripped.
+
+Please **Request CVE**. Credit: Finder + Reporter (`adrbogacz`).
+
+### Details
+
+`naughtyHref()` only runs when the attribute name is in `allowedSchemesAppliedToAttributes` (`index.js` ~385). Refresh URLs live in a `content` value of the form `0;url=…`, so the gate never fires. Adding `content` to that list wholesale would break ordinary meta `content` (description, viewport).
+
+**Fix:** when `http-equiv` is `refresh` (case-insensitive), parse the `; url=` destination and run `naughtyHref(&apos;meta&apos;, url)`. Drop `content` (or the tag) if the URL is rejected. Leave other `meta` `content` values alone.
+
+### PoC
+
+Local `sanitize-html@2.17.7`. Output inspection only:
+
+```text
+node -e &apos;
+const sanitize = require(&quot;sanitize-html&quot;);
+const opts = { allowedTags: [&quot;meta&quot;], allowedAttributes: { meta: [&quot;http-equiv&quot;, &quot;content&quot;] } };
+for (const html of [
+  &quot;&lt;meta http-equiv=\&quot;refresh\&quot; content=\&quot;0;url=javascript:alert(1)\&quot;&gt;&quot;,
+  &quot;&lt;meta http-equiv=\&quot;refresh\&quot; content=\&quot;0;url=data:text/html,aaa\&quot;&gt;&quot;,
+  &quot;&lt;form&gt;&lt;button formaction=\&quot;javascript:alert(1)\&quot;&gt;x&lt;/button&gt;&lt;/form&gt;&quot;,
+]) {
+  console.log(html, &quot;=&gt;&quot;, sanitize(html, html.includes(&quot;meta&quot;) ? opts : { allowedTags: [&quot;form&quot;,&quot;button&quot;], allowedAttributes: { button: [&quot;formaction&quot;] } }));
+}
+&apos;
+```
+
+Expected: refresh `javascript:` / `data:` remain; 53606 `formaction` is removed. Do not attach a browser hang or stored-XSS page.
+
+### Impact
+
+An integrator who allowed `meta` + `content` expecting `allowedSchemes` to apply (the 53606 configuration pattern) still emits a refresh to `javascript:`, `data:`, or an attacker `https:` URL. Stored XSS / open redirect for viewers of that HTML. Default config is not affected.</description>
+                    <references>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/apostrophecms/apostrophe/commit/9500b8b0e1d630d5e07fbb5fd2c25ed0943845ce</url><name>https://github.com/apostrophecms/apostrophe/commit/9500b8b0e1d630d5e07fbb5fd2c25ed0943845ce</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/apostrophecms/apostrophe/releases/tag/sanitize-html@2.18.0</url><name>https://github.com/apostrophecms/apostrophe/releases/tag/sanitize-html@2.18.0</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/advisories/GHSA-cv27-6wvh-8x7j</url><name>https://github.com/advisories/GHSA-cv27-6wvh-8x7j</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/apostrophecms/apostrophe/commit/f84fd41cbf6c22eb8d0008fc9c25df1f7130b350</url><name>https://github.com/apostrophecms/apostrophe/commit/f84fd41cbf6c22eb8d0008fc9c25df1f7130b350</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/apostrophecms/apostrophe/security/advisories/GHSA-cv27-6wvh-8x7j</url><name>https://github.com/apostrophecms/apostrophe/security/advisories/GHSA-cv27-6wvh-8x7j</name>                        </reference>
+                    </references>
+                    <vulnerableSoftware>
+                        <software
+                        >cpe:2.3:a:*:sanitize-html:\&lt;2.18.0:*:*:*:*:*:*:*</software>
+                    </vulnerableSoftware>
+                </vulnerability>
+                <vulnerability source="NPM">
+                    <name>GHSA-mjxr-4v3x-q3m4</name>
+                    <severity unscored="true">moderate</severity>
+                    <cvssV3>
+                        <baseScore>5.300000190734863</baseScore>
+                        <attackVector>NETWORK</attackVector>
+                        <attackComplexity>LOW</attackComplexity>
+                        <privilegesRequired>NONE</privilegesRequired>
+                        <userInteraction>NONE</userInteraction>
+                        <scope>UNCHANGED</scope>
+                        <confidentialityImpact>NONE</confidentialityImpact>
+                        <integrityImpact>LOW</integrityImpact>
+                        <availabilityImpact>NONE</availabilityImpact>
+                        <baseSeverity>MEDIUM</baseSeverity>
+<version>3.1</version>                    </cvssV3>
+                    <cwes>
+<cwe>CWE-20</cwe>                    </cwes>
+                    <description>Apostrophe Technologies sanitize-html before 2.3.2 does not properly validate the hostnames set by the &quot;allowedIframeHostnames&quot; option when the &quot;allowIframeRelativeUrls&quot; is set to true, which allows attackers to bypass hostname whitelist for iframe element, related using an src value that starts with &quot;/\\example.com&quot;.</description>
+                    <references>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://nvd.nist.gov/vuln/detail/CVE-2021-26540</url><name>https://nvd.nist.gov/vuln/detail/CVE-2021-26540</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/advisories/GHSA-mjxr-4v3x-q3m4</url><name>https://github.com/advisories/GHSA-mjxr-4v3x-q3m4</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/apostrophecms/sanitize-html/blob/main/CHANGELOG.md#232-2021-01-26</url><name>https://github.com/apostrophecms/sanitize-html/blob/main/CHANGELOG.md#232-2021-01-26</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://advisory.checkmarx.net/advisory/CX-2021-4309</url><name>https://advisory.checkmarx.net/advisory/CX-2021-4309</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/apostrophecms/sanitize-html/pull/460</url><name>https://github.com/apostrophecms/sanitize-html/pull/460</name>                        </reference>
+                    </references>
+                    <vulnerableSoftware>
+                        <software
+                        >cpe:2.3:a:*:sanitize-html:\&lt;2.3.2:*:*:*:*:*:*:*</software>
+                    </vulnerableSoftware>
+                </vulnerability>
+                <vulnerability source="NPM">
+                    <name>GHSA-rjqq-98f6-6j3r</name>
+                    <severity unscored="true">moderate</severity>
+                    <cvssV3>
+                        <baseScore>5.300000190734863</baseScore>
+                        <attackVector>NETWORK</attackVector>
+                        <attackComplexity>LOW</attackComplexity>
+                        <privilegesRequired>NONE</privilegesRequired>
+                        <userInteraction>NONE</userInteraction>
+                        <scope>UNCHANGED</scope>
+                        <confidentialityImpact>NONE</confidentialityImpact>
+                        <integrityImpact>LOW</integrityImpact>
+                        <availabilityImpact>NONE</availabilityImpact>
+                        <baseSeverity>MEDIUM</baseSeverity>
+<version>3.1</version>                    </cvssV3>
+                    <cwes>
+<cwe>CWE-20</cwe>                    </cwes>
+                    <description>Apostrophe Technologies sanitize-html before 2.3.1 does not properly handle internationalized domain name (IDN) which could allow an attacker to bypass hostname whitelist validation set by the &quot;allowedIframeHostnames&quot; option.</description>
+                    <references>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/advisories/GHSA-rjqq-98f6-6j3r</url><name>https://github.com/advisories/GHSA-rjqq-98f6-6j3r</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/apostrophecms/sanitize-html/commit/bdf7836ef8f0e5b21f9a1aab0623ae8fcd09c1da</url><name>https://github.com/apostrophecms/sanitize-html/commit/bdf7836ef8f0e5b21f9a1aab0623ae8fcd09c1da</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://advisory.checkmarx.net/advisory/CX-2021-4308</url><name>https://advisory.checkmarx.net/advisory/CX-2021-4308</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/apostrophecms/sanitize-html/pull/458</url><name>https://github.com/apostrophecms/sanitize-html/pull/458</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/apostrophecms/sanitize-html/blob/main/CHANGELOG.md#231-2021-01-22</url><name>https://github.com/apostrophecms/sanitize-html/blob/main/CHANGELOG.md#231-2021-01-22</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://nvd.nist.gov/vuln/detail/CVE-2021-26539</url><name>https://nvd.nist.gov/vuln/detail/CVE-2021-26539</name>                        </reference>
+                    </references>
+                    <vulnerableSoftware>
+                        <software
+                        >cpe:2.3:a:*:sanitize-html:\&lt;2.3.1:*:*:*:*:*:*:*</software>
+                    </vulnerableSoftware>
+                </vulnerability>
+                <vulnerability source="NPM">
+                    <name>GHSA-rm97-x556-q36h</name>
+                    <severity unscored="true">moderate</severity>
+                    <cvssV3>
+                        <baseScore>5.300000190734863</baseScore>
+                        <attackVector>NETWORK</attackVector>
+                        <attackComplexity>LOW</attackComplexity>
+                        <privilegesRequired>NONE</privilegesRequired>
+                        <userInteraction>NONE</userInteraction>
+                        <scope>UNCHANGED</scope>
+                        <confidentialityImpact>LOW</confidentialityImpact>
+                        <integrityImpact>NONE</integrityImpact>
+                        <availabilityImpact>NONE</availabilityImpact>
+                        <baseSeverity>MEDIUM</baseSeverity>
+<version>3.1</version>                    </cvssV3>
+                    <cwes>
+<cwe>CWE-538</cwe><cwe>CWE-200</cwe>                    </cwes>
+                    <description>Versions of the package sanitize-html before 2.12.1 are vulnerable to Information Exposure when used on the backend and with the style attribute allowed, allowing enumeration of files in the system (including project dependencies). An attacker could exploit this vulnerability to gather details about the file system structure and dependencies of the targeted server.</description>
+                    <references>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://security.snyk.io/vuln/SNYK-JAVA-ORGWEBJARSNPM-6276557</url><name>https://security.snyk.io/vuln/SNYK-JAVA-ORGWEBJARSNPM-6276557</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/apostrophecms/sanitize-html/commit/c5dbdf77fe8b836d3bf4554ea39edb45281ec0b4</url><name>https://github.com/apostrophecms/sanitize-html/commit/c5dbdf77fe8b836d3bf4554ea39edb45281ec0b4</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/P4I5X6V3LYUNBMZ5YOW4BV427TH3IK4S</url><name>https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/P4I5X6V3LYUNBMZ5YOW4BV427TH3IK4S</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/apostrophecms/apostrophe/discussions/4436</url><name>https://github.com/apostrophecms/apostrophe/discussions/4436</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/4EB5JPYRCTS64EA5AMV3INHDPI6I4AW7</url><name>https://lists.fedoraproject.org/archives/list/package-announce@lists.fedoraproject.org/message/4EB5JPYRCTS64EA5AMV3INHDPI6I4AW7</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/advisories/GHSA-rm97-x556-q36h</url><name>https://github.com/advisories/GHSA-rm97-x556-q36h</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://nvd.nist.gov/vuln/detail/CVE-2024-21501</url><name>https://nvd.nist.gov/vuln/detail/CVE-2024-21501</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://gist.github.com/Slonser/8b4d061abe6ee1b2e10c7242987674cf</url><name>https://gist.github.com/Slonser/8b4d061abe6ee1b2e10c7242987674cf</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://security.snyk.io/vuln/SNYK-JS-SANITIZEHTML-6256334</url><name>https://security.snyk.io/vuln/SNYK-JS-SANITIZEHTML-6256334</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/apostrophecms/sanitize-html/pull/650</url><name>https://github.com/apostrophecms/sanitize-html/pull/650</name>                        </reference>
+                    </references>
+                    <vulnerableSoftware>
+                        <software
+                        >cpe:2.3:a:*:sanitize-html:\&lt;2.12.1:*:*:*:*:*:*:*</software>
+                    </vulnerableSoftware>
+                </vulnerability>
+                <vulnerability source="NPM">
+                    <name>GHSA-x3q4-9hxx-gx8m</name>
+                    <severity unscored="true">moderate</severity>
+                    <cwes>
+<cwe>CWE-79</cwe>                    </cwes>
+                    <description>## Summary
+
+`sanitize-html` discards the *content* of every element in `nonTextTags`. It delimits that region
+using htmlparser2&apos;s close events, and ignores the `isImplied` flag htmlparser2 passes it. Closing a
+still-open **ancestor** from inside a `&lt;noscript&gt;` makes htmlparser2 unwind its stack past the
+`noscript`; the synthetic implied close it emits on the way ends the discard region early, and
+everything after it is treated as ordinary body content.
+
+A browser with scripting enabled parses `&lt;noscript&gt;` content as **raw text**, so the same markup
+renders as inert text there. The sanitizer therefore emits elements the page itself would not have.
+
+## Reproduction
+
+```js
+const sanitizeHtml = require(&quot;sanitize-html&quot;);
+
+sanitizeHtml(&apos;&lt;div&gt;&lt;noscript&gt;&lt;/div&gt;&lt;img src=&quot;http://evil.test/t.gif&quot;&gt;&lt;/noscript&gt;&apos;, {
+  allowedTags: [&quot;div&quot;, &quot;img&quot;],
+  allowedAttributes: { img: [&quot;src&quot;] },
+  nonTextTags: [&quot;script&quot;, &quot;style&quot;, &quot;textarea&quot;, &quot;option&quot;, &quot;noscript&quot;],
+});
+// =&gt; &apos;&lt;div&gt;&lt;/div&gt;&lt;img src=&quot;http://evil.test/t.gif&quot; /&gt;&apos;
+```
+
+Chrome, given the same input, renders **no** `&lt;img&gt;` — the whole payload is raw text inside the
+unclosed `&lt;noscript&gt;`. Verified with Playwright, `srcdoc` into an iframe so the scripting flag is on.
+
+A `&lt;![CDATA[` variant hides the opening tag from the parser entirely and has the same effect:
+
+```
+&lt;p&gt;Hi&lt;/p&gt;&lt;![CDATA[ x &gt; &lt;noscript&gt;]]&gt;&lt;a href=&quot;…&quot;&gt;Reset your password&lt;/a&gt;&lt;img src=&quot;…beacon.gif&quot;&gt;&lt;/noscript&gt;
+```
+
+htmlparser2 runs a CDATA token to `]]&gt;`; Chrome ends a bogus comment at the first `&gt;`, so the
+`&lt;noscript&gt;` after it is real to the browser and invisible to the parser.
+
+## Where the behaviour is
+
+`index.js`:
+
+- `:154` — `nonTextTagsArray` (the default list, `[&apos;script&apos;,&apos;style&apos;,&apos;textarea&apos;,&apos;option&apos;,&apos;xmp&apos;]`).
+- `:638` — `onclosetag: function (name, isImplied)` — receives the flag.
+- `:644` — `skipTextDepth--` — decrements without consulting `isImplied`.
+
+## Suggested fix
+
+Do not end a discard region on an implied close. htmlparser2 already distinguishes them; the flag
+is passed and discarded. Something close to:
+
+```js
+onclosetag: function (name, isImplied) {
+  if (skipText) {
+    if (isImplied) return;   // an implied close must not end the region
+    skipTextDepth--;
+    …
+```</description>
+                    <references>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/apostrophecms/apostrophe/commit/9500b8b0e1d630d5e07fbb5fd2c25ed0943845ce</url><name>https://github.com/apostrophecms/apostrophe/commit/9500b8b0e1d630d5e07fbb5fd2c25ed0943845ce</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/apostrophecms/apostrophe/releases/tag/sanitize-html@2.18.0</url><name>https://github.com/apostrophecms/apostrophe/releases/tag/sanitize-html@2.18.0</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/advisories/GHSA-x3q4-9hxx-gx8m</url><name>https://github.com/advisories/GHSA-x3q4-9hxx-gx8m</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/apostrophecms/apostrophe/commit/f84fd41cbf6c22eb8d0008fc9c25df1f7130b350</url><name>https://github.com/apostrophecms/apostrophe/commit/f84fd41cbf6c22eb8d0008fc9c25df1f7130b350</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/apostrophecms/apostrophe/security/advisories/GHSA-x3q4-9hxx-gx8m</url><name>https://github.com/apostrophecms/apostrophe/security/advisories/GHSA-x3q4-9hxx-gx8m</name>                        </reference>
+                    </references>
+                    <vulnerableSoftware>
+                        <software
+                        >cpe:2.3:a:*:sanitize-html:\&lt;2.18.0:*:*:*:*:*:*:*</software>
+                    </vulnerableSoftware>
+                </vulnerability>
+                <vulnerability source="NPM">
+                    <name>GHSA-xc6g-ggrc-qq4r</name>
+                    <severity unscored="true">moderate</severity>
+                    <cwes>
+<cwe>CWE-79</cwe>                    </cwes>
+                    <description>Affected versions of `sanitize-html` are vulnerable to cross-site scripting when allowedTags includes at least one `nonTextTag`.
+
+## Proof of Concept
+
+```js
+var sanitizeHtml = require(&apos;sanitize-html&apos;);
+
+var dirty = &apos;!&lt;textarea&gt;&amp;lt;/textarea&amp;gt;&lt;svg/onload=prompt`xs`&amp;gt;&lt;/textarea&gt;!&apos;;
+var clean = sanitizeHtml(dirty, {
+    allowedTags: [ &apos;textarea&apos; ]
+});
+
+console.log(clean);
+
+// !&lt;textarea&gt;&lt;/textarea&gt;&lt;svg/onload=prompt`xs`&gt;&lt;/textarea&gt;!
+```
+
+
+## Recommendation
+
+Update to version 1.11.4 or later.</description>
+                    <references>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://nvd.nist.gov/vuln/detail/CVE-2017-16016</url><name>https://nvd.nist.gov/vuln/detail/CVE-2017-16016</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/punkave/sanitize-html/commit/5d205a1005ba0df80e21d8c64a15bb3accdb2403)))</url><name>https://github.com/punkave/sanitize-html/commit/5d205a1005ba0df80e21d8c64a15bb3accdb2403)))</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/advisories/GHSA-xc6g-ggrc-qq4r</url><name>https://github.com/advisories/GHSA-xc6g-ggrc-qq4r</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://www.npmjs.com/advisories/154</url><name>https://www.npmjs.com/advisories/154</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/punkave/sanitize-html/commit/5d205a1005ba0df80e21d8c64a15bb3accdb2403</url><name>https://github.com/punkave/sanitize-html/commit/5d205a1005ba0df80e21d8c64a15bb3accdb2403</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/punkave/sanitize-html/issues/100</url><name>https://github.com/punkave/sanitize-html/issues/100</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://npmjs.com/package/sanitize-html#discarding-the-entire-contents-of-a-disallowed-tag</url><name>https://npmjs.com/package/sanitize-html#discarding-the-entire-contents-of-a-disallowed-tag</name>                        </reference>
+                    </references>
+                    <vulnerableSoftware>
+                        <software
+                        >cpe:2.3:a:*:sanitize-html:\&lt;\=1.11.1:*:*:*:*:*:*:*</software>
+                    </vulnerableSoftware>
+                </vulnerability>
+            </vulnerabilities>
+        </dependency>
+        <dependency isVirtual="true">
+            <fileName>uuid:8.3.2</fileName>
+            <filePath>/src/package-lock.json?uuid</filePath>
+            <md5></md5>
+            <sha1></sha1>
+            <sha256></sha256>
+            <projectReferences>
+                <projectReference>package-lock.json: transitive</projectReference>
+            </projectReferences>
+            <evidenceCollected>
+                <evidence type="vendor" confidence="HIGH">
+                    <source>package.json</source>
+                    <name>name</name>
+                    <value>uuid</value>
+                </evidence>
+                <evidence type="product" confidence="HIGHEST">
+                    <source>package.json</source>
+                    <name>name</name>
+                    <value>uuid</value>
+                </evidence>
+                <evidence type="version" confidence="HIGHEST">
+                    <source>package.json</source>
+                    <name>version</name>
+                    <value>8.3.2</value>
+                </evidence>
+            </evidenceCollected>
+            <identifiers>
+                <package confidence="HIGHEST">
+                    <id>pkg:npm/uuid@8.3.2</id>
+                </package>
+            </identifiers>
+            <vulnerabilities>
+                <vulnerability source="NPM">
+                    <name>GHSA-w5hq-g745-h8pq</name>
+                    <severity unscored="true">moderate</severity>
+                    <cvssV3>
+                        <baseScore>7.5</baseScore>
+                        <attackVector>NETWORK</attackVector>
+                        <attackComplexity>LOW</attackComplexity>
+                        <privilegesRequired>NONE</privilegesRequired>
+                        <userInteraction>NONE</userInteraction>
+                        <scope>UNCHANGED</scope>
+                        <confidentialityImpact>NONE</confidentialityImpact>
+                        <integrityImpact>HIGH</integrityImpact>
+                        <availabilityImpact>NONE</availabilityImpact>
+                        <baseSeverity>HIGH</baseSeverity>
+<version>3.1</version>                    </cvssV3>
+                    <cwes>
+<cwe>CWE-787</cwe><cwe>CWE-1285</cwe>                    </cwes>
+                    <description>### Summary
+
+The `v3()`, `v5()`, and `v6()` [API methods](https://github.com/uuidjs/uuid#api-summary) (not `uuid` release versions) accept external output buffers but do not reject out-of-range writes (small `buf` or large `offset`).  
+By contrast, `v4()`, `v1()`, and `v7()` API methods explicitly throw `RangeError` on invalid bounds.
+
+This inconsistency allows **silent partial writes** into caller-provided buffers.
+
+
+### Affected code
+
+- `src/v35.ts` (`v3()`/`v5()` path) writes `buf[offset + i]` without bounds validation.
+- `src/v6.ts` writes `buf[offset + i]` without bounds validation.
+
+### Reproducible PoC
+
+```bash
+cd /home/StrawHat/uuid
+npm ci
+npm run build
+
+node --input-type=module -e &quot;
+import {v4,v5,v6} from &apos;./dist-node/index.js&apos;;
+const ns=&apos;6ba7b810-9dad-11d1-80b4-00c04fd430c8&apos;;
+for (const [name,fn] of [
+  [&apos;v4()&apos;,()=&gt;v4({},new Uint8Array(8),4)],
+  [&apos;v5()&apos;,()=&gt;v5(&apos;x&apos;,ns,new Uint8Array(8),4)],
+  [&apos;v6()&apos;,()=&gt;v6({},new Uint8Array(8),4)],
+]) {
+  try { fn(); console.log(name,&apos;NO_THROW&apos;); }
+  catch(e){ console.log(name,&apos;THREW&apos;,e.name); }
+}&quot;
+```
+
+Observed:
+
+- `v4() THREW RangeError`
+- `v5() NO_THROW`
+- `v6() NO_THROW`
+
+Example partial overwrite evidence captured during audit:
+
+```text
+same true buf [
+  170, 170, 170, 170,
+   75, 224, 100,  63
+]
+v6 [
+  187, 187, 187, 187,
+   31,  19, 185,  64
+]
+```
+
+### Security impact
+
+- **Primary**: integrity/robustness issue (silent partial output).
+- If an application assumes full UUID writes into preallocated buffers, this can produce malformed/truncated/partially stale identifiers without error.
+- In systems where caller-controlled offsets/buffer sizes are exposed indirectly, this may become a security-relevant logic flaw.
+
+### Suggested fix
+
+Add the same guard used by `v4()`/`v1()`/`v7()`:
+
+```ts
+if (offset &lt; 0 || offset + 16 &gt; buf.length) {
+  throw new RangeError(`UUID byte range ${offset}:${offset + 15} is out of buffer bounds`);
+}
+```
+
+Apply to:
+
+- `src/v35.ts` (covers `v3()` and `v5()`)
+- `src/v6.ts`</description>
+                    <references>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/uuidjs/uuid/commit/32389c887c9e75f90442ee4cc95bbab0c4e8346e</url><name>https://github.com/uuidjs/uuid/commit/32389c887c9e75f90442ee4cc95bbab0c4e8346e</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/uuidjs/uuid/commit/3d61d6ac1f782cf6b1dd8661c60f11722cd49a0d</url><name>https://github.com/uuidjs/uuid/commit/3d61d6ac1f782cf6b1dd8661c60f11722cd49a0d</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/advisories/GHSA-w5hq-g745-h8pq</url><name>https://github.com/advisories/GHSA-w5hq-g745-h8pq</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://nvd.nist.gov/vuln/detail/CVE-2026-41907</url><name>https://nvd.nist.gov/vuln/detail/CVE-2026-41907</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/uuidjs/uuid/releases/tag/v11.1.1</url><name>https://github.com/uuidjs/uuid/releases/tag/v11.1.1</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/uuidjs/uuid/commit/9d27ddf7046ce496ef39569ff84d948eeff9cb2a</url><name>https://github.com/uuidjs/uuid/commit/9d27ddf7046ce496ef39569ff84d948eeff9cb2a</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/uuidjs/uuid/security/advisories/GHSA-w5hq-g745-h8pq</url><name>https://github.com/uuidjs/uuid/security/advisories/GHSA-w5hq-g745-h8pq</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/uuidjs/uuid/releases/tag/v13.0.1</url><name>https://github.com/uuidjs/uuid/releases/tag/v13.0.1</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/uuidjs/uuid/commit/3d2c5b0342f0fcb52a5ac681c3d47c13e7444b34</url><name>https://github.com/uuidjs/uuid/commit/3d2c5b0342f0fcb52a5ac681c3d47c13e7444b34</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/uuidjs/uuid/releases/tag/v14.0.0</url><name>https://github.com/uuidjs/uuid/releases/tag/v14.0.0</name>                        </reference>
+                        <reference>
+                            <source>NPM Advisory reference: </source>
+<url>https://github.com/uuidjs/uuid/releases/tag/v12.0.1</url><name>https://github.com/uuidjs/uuid/releases/tag/v12.0.1</name>                        </reference>
+                    </references>
+                    <vulnerableSoftware>
+                        <software
+                        >cpe:2.3:a:*:uuid:\&lt;11.1.1:*:*:*:*:*:*:*</software>
+                    </vulnerableSoftware>
+                </vulnerability>
+            </vulnerabilities>
+        </dependency>
+    </dependencies>
+</analysis>

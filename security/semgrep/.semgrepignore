@@ -1,0 +1,5 @@
+# Exclusiones de falsos positivos para Semgrep
+node_modules/
+dist/
+frontend/dist/
+
