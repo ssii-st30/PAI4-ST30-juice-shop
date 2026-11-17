@@ -166,7 +166,7 @@ def main():
     result = {"passed": passed, "total": {l: total[l] for l in LEVELS}, "problems": problems,
               "tools": {t: ({l: c[l] for l in LEVELS} if c is not None else None)
                         for t, c, _ in rows}}
-    Path("gate-result.json").write_text(json.dumps(result, indent=2, ensure_ascii=False), encoding="utf-8")
+    Path("gate-result.json").write_text(json.dumps(result, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
 
     if not passed:
         print(f"::error title=Quality gate::El gate falla: {total['Critical']} Critical, "
