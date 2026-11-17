@@ -112,7 +112,8 @@ jobs:
             HIGH_COUNT=$(grep -Eic "<severity[^>]*>high</severity>" reports/dependency-check-report.xml || true)
             TOTAL_HC=$((CRIT_COUNT + HIGH_COUNT)) 
             echo "- Vulnerabilidades **Critical**: **$CRIT_COUNT**" >> $GITHUB_STEP_SUMMARY
-            echo "- Vulnerabilidades **High**: **$HIGH_COUNT**" >> $GITHUB_STEP_SUMMARY echo "- Total **Critical/High (CVSS >= 7)**: **$TOTAL_HC**" >> $GITHUB_STEP_SUMMARY
+            echo "- Vulnerabilidades **High**: **$HIGH_COUNT**" >> $GITHUB_STEP_SUMMARY 
+            echo "- Total **Critical/High (CVSS >= 7)**: **$TOTAL_HC**" >> $GITHUB_STEP_SUMMARY
             if [ "$TOTAL_HC" -gt 0 ]; then
               echo "::warning::Dependency-Check detectó $TOTAL_HC vulnerabilidades Critical/High ($CRIT_COUNT Critical,$HIGH_COUNT High) (modo aviso, no bloquea)."
             fi
