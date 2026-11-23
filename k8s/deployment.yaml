@@ -54,6 +54,14 @@ spec:
             limits:
               cpu: 500m
               memory: 512Mi
+          # Juice Shop tarda en arrancar con 0,5 CPU: la startupProbe le da hasta 3 minutos
+          # antes de que empiecen a contar la readiness y la liveness.
+          startupProbe:
+            httpGet:
+              path: /rest/admin/application-version
+              port: 3000
+            periodSeconds: 5
+            failureThreshold: 36
           readinessProbe:
             httpGet:
               path: /rest/admin/application-version

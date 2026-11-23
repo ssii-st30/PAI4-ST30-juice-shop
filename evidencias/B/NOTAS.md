@@ -28,11 +28,12 @@
 - **Resultados:** ejecución #36 (17/11): 12 Critical y 60 High (Semgrep 0/16, Dependency-Check 5/9, KICS 0/11, Trivy 7/24) y falta el informe de ZAP → el gate falla y `deploy` queda omitido. Evidencias B07–B09. Las cifras varían ligeramente entre ejecuciones porque las bases de datos de vulnerabilidades se actualizan cada día.
 
 ## 4. Kubernetes (`k8s/`)
-- **v1:** `Namespace`, `Deployment` (2 réplicas, límites de CPU y memoria, *readiness* y *liveness probes*) y `Service` ClusterIP. La imagen aparece como `IMAGE_TAG`, que el despliegue sustituye por la del commit. Se escribió como un manifiesto habitual, sin endurecer y sin introducir fallos a propósito.
+- **v1:** `Namespace`, `Deployment` (2 réplicas, límites de CPU y memoria, *readiness* y *liveness probes*) y `Service` ClusterIP. Se escribió como un manifiesto habitual, sin endurecer y sin introducir fallos a propósito. Por un error al crearlo, la imagen quedó como `juice-shop:latest` en lugar del marcador `IMAGE_TAG` (ver sección 8).
 - **Hallazgos de KICS en la v1 (15):** 1 High (*Privilege Escalation Allowed*), 5 Medium (ejecución como root y UID bajo, *capabilities* NET_RAW sin eliminar, sin perfil seccomp, token de service account montado) y 9 Low (sin PodDisruptionBudget, LimitRange ni ResourceQuota, sin AppArmor, sin `securityContext`, sistema de ficheros raíz no de solo lectura, imagen sin digest / etiqueta no válida).
 - **v2 endurecida (preparada para la sesión DefectDojo):** `allowPrivilegeEscalation: false`, `runAsNonRoot`/`runAsUser: 65532`, `capabilities: drop ALL`, `seccompProfile: RuntimeDefault`, AppArmor, `automountServiceAccountToken: false`, PodDisruptionBudget, LimitRange y ResourceQuota.
   - **Riesgo aceptado:** `readOnlyRootFilesystem: false`, porque Juice Shop escribe en tiempo de ejecución su base de datos SQLite, los logs y los ficheros subidos.
   - **Falso positivo en contexto:** *Image Without Digest* / *Invalid Image Tag*, porque KICS ve el marcador `IMAGE_TAG`, que el despliegue sustituye por la imagen real.
+  - Se añade una `startupProbe` (hasta 3 minutos) para que la *liveness probe* no reinicie Juice Shop mientras arranca con 0,5 CPU.
 
 ## 5. Despliegue y aviso al equipo (`_deploy.yml` y `_security-gate.yml`)
 - **Despliegue (solo si el gate pasa):** sustituye `IMAGE_TAG` por la imagen del commit, la descarga de GHCR, crea un clúster Kubernetes efímero con *kind* dentro del runner, aplica los manifiestos, espera a que las réplicas estén listas y hace una prueba de humo contra la aplicación. No hay producción real: el clúster desaparece al terminar el job. Admite un ensayo manual (*workflow_dispatch*).
@@ -59,7 +60,8 @@
 3. **Commit hecho en `master` en lugar de en la rama:** se movió a su rama (`git branch -f` y `git reset --hard origin/master`). La protección de `master` impedía subirlo directamente.
 4. **Sangría incorrecta del job `dast` en `devsecops.yml`:** el job se fusionaba con `iac-container` y GitHub rechazaba el workflow. Se corrigió en el pull request #13.
 5. **Bloque JSON mal cerrado en el issue de aviso:** `gate-result.json` no terminaba con salto de línea. Se corrigió en `gate.py`.
-6. **DefectDojo apagado durante una ejecución:** la acción avisó (*"DefectDojo no responde"*) y el pipeline continuó, como estaba diseñado (evidencia B12).
+6. **El primer ensayo del despliegue falló (`ImagePullBackOff`):** la v1 de `deployment.yaml` tenía `juice-shop:latest`, una etiqueta que el pipeline no publica, así que no se sustituyó por la imagen del commit y Kubernetes no pudo descargarla. El paso de diagnóstico mostró la causa. Se corrige con la v2, que usa `IMAGE_TAG`. Además, el despliegue no puso en marcha ninguna imagen distinta de la verificada.
+7. **DefectDojo apagado durante una ejecución:** la acción avisó (*"DefectDojo no responde"*) y el pipeline continuó, como estaba diseñado (evidencia B12).
 
 ## 9. Evidencias del bloque B (`evidencias/B/`)
 | Fichero | Qué muestra |
