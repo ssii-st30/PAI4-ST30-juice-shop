@@ -53,6 +53,16 @@ jobs:
           name: report-kics
           path: kics-results/results.json
 
+      - name: Enviar a DefectDojo
+        if: always()
+        uses: ./.github/actions/defectdojo-import
+        with:
+          file: kics-results/results.json
+          scan-type: KICS Scan
+          tool: KICS
+          url: ${{ secrets.DEFECTDOJO_URL }}
+          api-key: ${{ secrets.DEFECTDOJO_API_KEY }}
+
   image-scan:
     runs-on: ubuntu-latest
     permissions:
@@ -121,3 +131,13 @@ jobs:
         with:
           name: report-trivy
           path: trivy-results/trivy-image.json
+
+      - name: Enviar a DefectDojo
+        if: always()
+        uses: ./.github/actions/defectdojo-import
+        with:
+          file: trivy-results/trivy-image.json
+          scan-type: Trivy Scan
+          tool: Trivy
+          url: ${{ secrets.DEFECTDOJO_URL }}
+          api-key: ${{ secrets.DEFECTDOJO_API_KEY }}

@@ -1,4 +1,4 @@
-﻿# Notas Técnicas – Persona A (Base del pipeline, SAST y SCA)
+# Notas Técnicas – Persona A (Base del pipeline, SAST y SCA)
 
 ## 1. Arquitectura base del pipeline y Build (`devsecops.yml` y `_build.yml`)
 - **Plataforma CI/CD:** GitHub Actions sobre repositorio público (`ssii-st30/PAI4-ST30-juice-shop`), aprovechando runners gratuitos sin consumo de minutos, gestión segura de secretos (`NVD_API_KEY`) y workflows reutilizables (`workflow_call`) para aislar el trabajo de cada miembro.
@@ -23,8 +23,8 @@
 - **Configuración, modo aviso y resultados:** Imagen oficial fijada en `owasp/dependency-check:13.0.0` sobre `package.json` y `package-lock.json` con `--failOnCVSS 7` (umbral High/Critical) y caché persistente (`actions/cache@v4`) de la base NVD. Al superar el umbral devuelve `exit code 15`, capturado en modo aviso (`continue-on-error: true` en el paso). Exporta `dependency-check-report.xml` (artifact `report-dependency-check`).
   - Total vulnerabilidades detectadas: **35** (**5** Critical, **10** High — Total Critical/High CVSS >= 7: **15**).
   - Ejemplos representativos:
-- **GHSA-q69g-4hcv-6jg4** — Severidad: HIGH (CVSS: )
-- **GHSA-v75r-vx73-82pj** — Severidad: HIGH (CVSS: )
+- **GHSA-jf85-cpcp-j695** en `lodash` 2.4.2 — Severidad: CRITICAL (CVSS 9.1)
+- **GHSA-xwcq-pm8m-c4vf** en `crypto-js` 3.3.0 — Severidad: CRITICAL (CVSS 9.1)
 - **Gestión de falsos positivos:** Fichero XML `security/dependency-check/suppressions.xml` pasado mediante `--suppression`.
 
 ## 4. Problemas encontrados y soluciones aplicadas
