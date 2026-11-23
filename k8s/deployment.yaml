@@ -17,8 +17,6 @@ spec:
     metadata:
       labels:
         app: juice-shop
-      annotations:
-        container.apparmor.security.beta.kubernetes.io/juice-shop: runtime/default
     spec:
       automountServiceAccountToken: false   # la aplicación no usa la API de Kubernetes
       securityContext:
@@ -41,8 +39,9 @@ spec:
             privileged: false
             capabilities:
               drop: ["ALL"]
-            appArmorProfile:
-              type: RuntimeDefault
+            # AppArmor no se fija: el clúster kind del despliegue no tiene AppArmor activado y
+            # Kubernetes rechaza los pods que lo exigen. Riesgo aceptado (severidad baja);
+            # en un clúster de producción con AppArmor se añadiría appArmorProfile: RuntimeDefault.
             # Juice Shop escribe en tiempo de ejecución su base de datos SQLite (data/),
             # los logs y los ficheros subidos, por lo que no puede tener el sistema de
             # ficheros raíz en solo lectura. Riesgo aceptado y documentado en DefectDojo.
