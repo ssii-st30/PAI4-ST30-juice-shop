@@ -1,6 +1,36 @@
-# Espacio de nombres propio para la aplicación
+# Espacio de nombres propio para la aplicación, con límites de recursos (v2)
 # Responsable: persona B
 apiVersion: v1
 kind: Namespace
 metadata:
   name: juice-shop
+---
+# Límites por defecto para cualquier contenedor del namespace
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: juice-shop-limits
+  namespace: juice-shop
+spec:
+  limits:
+    - type: Container
+      default:
+        cpu: 500m
+        memory: 512Mi
+      defaultRequest:
+        cpu: 250m
+        memory: 256Mi
+---
+# Cuota total del namespace para evitar que consuma todo el clúster
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: juice-shop-quota
+  namespace: juice-shop
+spec:
+  hard:
+    pods: "6"
+    requests.cpu: "2"
+    requests.memory: 2Gi
+    limits.cpu: "4"
+    limits.memory: 4Gi

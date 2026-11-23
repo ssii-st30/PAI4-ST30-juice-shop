@@ -1,4 +1,4 @@
-# Despliegue de OWASP Juice Shop en Kubernetes (versión inicial, v1)
+# Despliegue de OWASP Juice Shop en Kubernetes (v2, endurecido tras el análisis de KICS)
 # Responsable: persona B
 # La imagen la construye y publica el job image-scan del pipeline en GHCR.
 apiVersion: apps/v1
@@ -17,15 +17,36 @@ spec:
     metadata:
       labels:
         app: juice-shop
+      annotations:
+        container.apparmor.security.beta.kubernetes.io/juice-shop: runtime/default
     spec:
+      automountServiceAccountToken: false   # la aplicación no usa la API de Kubernetes
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532                     # usuario sin privilegios de la imagen distroless
+        runAsGroup: 65532
+        fsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: juice-shop
-          image: ghcr.io/ssii-st30/juice-shop:latest
+          image: ghcr.io/ssii-st30/juice-shop:IMAGE_TAG   # el job de despliegue sustituye IMAGE_TAG por el sha del commit
           ports:
             - containerPort: 3000
           env:
             - name: NODE_ENV
               value: production
+          securityContext:
+            allowPrivilegeEscalation: false
+            privileged: false
+            capabilities:
+              drop: ["ALL"]
+            appArmorProfile:
+              type: RuntimeDefault
+            # Juice Shop escribe en tiempo de ejecución su base de datos SQLite (data/),
+            # los logs y los ficheros subidos, por lo que no puede tener el sistema de
+            # ficheros raíz en solo lectura. Riesgo aceptado y documentado en DefectDojo.
+            readOnlyRootFilesystem: false
           resources:
             requests:
               cpu: 250m
@@ -45,3 +66,15 @@ spec:
               port: 3000
             initialDelaySeconds: 30
             periodSeconds: 20
+---
+# Garantiza que al menos una réplica siga disponible durante mantenimientos del clúster
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: juice-shop
+  namespace: juice-shop
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: juice-shop
