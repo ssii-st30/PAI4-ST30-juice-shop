@@ -136,3 +136,5 @@ jobs:
           file: reports/dependency-check-report.xml
           scan-type: 'Dependency Check Scan'
           tool: 'OWASP Dependency-Check'
+          url: ${{ secrets.DEFECTDOJO_URL }}
+          api-key: ${{ secrets.DEFECTDOJO_API_KEY }}
