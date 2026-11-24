@@ -31,3 +31,8 @@ scripts/
 terraform/
 test/
 vagrant/
+docs/
+evidencias/
+infrastructure/
+k8s/
+security/
