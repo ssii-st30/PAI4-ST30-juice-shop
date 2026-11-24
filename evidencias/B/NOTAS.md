@@ -33,7 +33,8 @@
 - **v2 endurecida (preparada para la sesión DefectDojo):** `allowPrivilegeEscalation: false`, `runAsNonRoot`/`runAsUser: 65532`, `capabilities: drop ALL`, `seccompProfile: RuntimeDefault`, `automountServiceAccountToken: false`, PodDisruptionBudget, LimitRange y ResourceQuota.
   - **Riesgo aceptado:** perfil AppArmor no configurado (severidad baja). El nodo del clúster *kind* no tiene AppArmor activado y Kubernetes rechaza los pods que lo exigen; en un clúster de producción con AppArmor se añadiría `appArmorProfile: RuntimeDefault`.
   - **Riesgo aceptado:** `readOnlyRootFilesystem: false`, porque Juice Shop escribe en tiempo de ejecución su base de datos SQLite, los logs y los ficheros subidos.
-  - **Falso positivo en contexto:** *Image Without Digest* / *Invalid Image Tag*, porque KICS ve el marcador `IMAGE_TAG`, que el despliegue sustituye por la imagen real.
+  - **Verdadero positivo pendiente:** *Image Without Digest*. Aunque el despliegue sustituye `IMAGE_TAG` por la etiqueta del commit, sigue siendo una etiqueta que se puede reescribir; lo correcto es desplegar por digest (`imagen@sha256:…`), con el mismo criterio con que fijamos KICS. Al principio lo clasificamos como falso positivo, y se corrigió en la revisión del triaje.
+  - *Invalid Image Tag*: en la v2 lo provoca el marcador `IMAGE_TAG` de la plantilla, que se sustituye antes de desplegar (falso positivo en contexto).
   - Se añade una `startupProbe` (hasta 3 minutos) para que la *liveness probe* no reinicie Juice Shop mientras arranca con 0,5 CPU.
 
 ## 5. Despliegue y aviso al equipo (`_deploy.yml` y `_security-gate.yml`)
